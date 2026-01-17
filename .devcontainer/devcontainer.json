@@ -1,0 +1,23 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/java
+{
+	"name": "WS WPILib Java",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"options": [
+			"--platform=linux/amd64"
+		]
+	},
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"settings": {},
+			"extensions": [
+				"davidanson.vscode-markdownlint",
+				"streetsidesoftware.code-spell-checker",
+				"/tmp/wpilib.vsix"
+			]
+		}
+	}
+}
