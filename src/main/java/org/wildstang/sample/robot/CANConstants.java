@@ -20,19 +20,14 @@ public final class CANConstants {
     public static final int GYRO = 31;
 
     //swerve constants
-    public static final int DRIVE1 = 11; // FL
-    public static final int ANGLE1 = 12;
-    public static final int DRIVE2 = 13; // FR
-    public static final int ANGLE2 = 14;
-    public static final int DRIVE3 = 15; // BL
-    public static final int ANGLE3 = 16;
-    public static final int DRIVE4 = 17; // BR
-    public static final int ANGLE4 = 18;
-
-    public static final int FL_ENCODER = 41;
-    public static final int FR_ENCODER = 42;
-    public static final int BL_ENCODER = 43;
-    public static final int BR_ENCODER = 44;
+    public static final int DRIVE1 = 17; // FL
+    public static final int ANGLE1 = 18;
+    public static final int DRIVE2 = 15; // FR
+    public static final int ANGLE2 = 16;
+    public static final int DRIVE3 = 11; // BL
+    public static final int ANGLE3 = 12;
+    public static final int DRIVE4 = 13; // BR
+    public static final int ANGLE4 = 14;
 
     // only needed for REV logging
     public static final Map<Integer, String> aliasMap = Map.ofEntries(

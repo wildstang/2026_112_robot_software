@@ -177,6 +177,19 @@ public class WsSpark extends WsMotorController {
     }
 
     /**
+     * Set unit and direction conversions for external absolute encoder
+     * @param posConversionFactor Position conversion factor
+     * @param velConversionFactor Velocity conversion factor
+     * @param isEncoderFlipped Whether to flip the phase of the encoder to match the motor movement.
+     */
+    public void setAbsEncConversion(double posConversionFactor, double velConversionFactor, boolean isEncoderFlipped){
+        absEncoderConfig.positionConversionFactor(posConversionFactor);
+        absEncoderConfig.velocityConversionFactor(velConversionFactor);
+        absEncoderConfig.inverted(isEncoderFlipped);
+        config.apply(absEncoderConfig);
+    }
+
+    /**
      * Sets the current limit, but does not burn flash. Never use in init
      * @param limit the amount of amps drawn before limiting
      */

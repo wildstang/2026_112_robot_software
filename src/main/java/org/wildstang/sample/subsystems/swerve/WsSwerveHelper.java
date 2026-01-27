@@ -1,64 +1,79 @@
 package org.wildstang.sample.subsystems.swerve;
 
+import edu.wpi.first.math.MathUtil;
+
 public class WsSwerveHelper {
 
-    // Distance between two angles in degrees between
-    public static double angleDist(double angle1, double angle2) {
-        double distance = Math.abs((angle1 % 360) - (angle2 % 360));
+    private SwerveSignal swerveSignal;
+    private double baseV;
+    private double[] xCoords = new double[]{0.0, 0.0, 0.0, 0.0};
+    private double[] yCoords = new double[]{0.0, 0.0, 0.0, 0.0};
+    private double rotErr;
+    private static double prevRotErr = 0;
+    private double rotPID;
 
-        // If that distance gives us the long way
-        if (distance > 180) {
-            return 360 - distance;
-        } 
-        return distance;
-    }
-
-    /*
-     * Determines if the limelight should take over for object detection in auto
-     * If the robot is moving too slowly to pick up a detected gamepiece, gives power
-     * to move enough to pick up the gamepiece
-     * @param ty ty value of limelight in object detection mode
-     * @param xPower X value of the normal auto path
-     * @param yPower Y value of the normal auto path
-     * @return the new power value to use if the robot is moving too slowly, otherwise 0 if the robot is fine
-     */
-    public double adjustObjectAuto( double ty, double xPower, double yPower){
-        double yObject = ty*0.03;
-        if (Math.hypot(xPower, yPower) > yObject) return yObject;
-        else return 0;
-    }
-
-    /**determines the translational magnitude of the robot in autonomous
+    /** sets the robot in the immobile "cross" defensive position
      * 
-     * @param pathVel path data for velocity of the robot (m/s)
-     * @param pathAccel path data for acceleration of the robot (m/s^2)
-     * @return double for magnitude of translational vector
+     * @return driveSignal for cross, with 0 magnitude and crossed directions
      */
-    public double getAutoPower(double pathVel, double pathAccel) {
-        if (pathVel == 0) return 0;
-        // I don't know why this was negative
-        return (pathVel * DriveConstants.DRIVE_F_V + DriveConstants.DRIVE_F_K + pathAccel * DriveConstants.DRIVE_F_I);
+    public SwerveSignal setCross() {
+        // TODO: determine if these angles are different for a non-square robot
+        return new SwerveSignal(new double[]{0.0, 0.0, 0.0, 0.0}, new double[]{135.0, 45.0, 45.0, 135.0});
     }
 
-    /**returns magnitude of vector components */
-    public double getMagnitude(double x, double y) {
-        return Math.hypot(x, y);
+    /**sets the robot to drive normally as a swerve
+     * 
+     * @param i_tx the translation joystick x value
+     * @param i_ty the translation joystick y value
+     * @param i_rot the rotation joystick value
+     * @param i_gyro the gyro value, field centric, in RHR radians
+     * @return driveSignal for normal driving, normalized
+     */
+    public SwerveSignal setDrive(double i_tx, double i_ty, double i_rot, double i_gyro) {
+        //angle of front left rotation vector
+        baseV = Math.atan(DriveConstants.TRACK_WIDTH / DriveConstants.TRACK_LENGTH);
+
+        //find the translational vectors rotated to account for the gyro
+        double xTrans = i_tx * Math.cos(i_gyro) + i_ty * Math.sin(i_gyro);
+        double yTrans = - i_tx * Math.sin(i_gyro) + i_ty * Math.cos(i_gyro);
+
+        //account for slight second order skew due to rotation and translation at the same time
+        // xTrans += Math.cos(Math.atan2(xTrans,yTrans)) * i_rot * DriveConstants.ROT_CORRECTION_FACTOR * Math.hypot(i_tx, i_ty);
+        // yTrans += -Math.sin(Math.atan2(xTrans,yTrans)) * i_rot * DriveConstants.ROT_CORRECTION_FACTOR * Math.hypot(i_tx, i_ty);
+
+        //cartesian vector addition of translation and rotation vectors
+        //FL->FR->RL->RR
+        //note rotation vector angle advances in the cos -> sin -> -cos -> -sin fashion
+        xCoords = new double[]{xTrans - i_rot * Math.sin(baseV), xTrans + i_rot * Math.sin(baseV), xTrans - i_rot * Math.sin(baseV), xTrans + i_rot * Math.sin(baseV)}; 
+        yCoords = new double[]{yTrans + i_rot * Math.cos(baseV), yTrans + i_rot * Math.cos(baseV), yTrans - i_rot * Math.cos(baseV), yTrans - i_rot * Math.cos(baseV)};
+
+        //create drivesignal, with magnitudes and directions of x and y
+        swerveSignal = new SwerveSignal(new double[]{Math.hypot(xCoords[0], yCoords[0]), Math.hypot(xCoords[1], yCoords[1]), Math.hypot(xCoords[2], yCoords[2]), Math.hypot(xCoords[3], yCoords[3])}, 
+            new double[]{getDirection(xCoords[0], yCoords[0]), getDirection(xCoords[1], yCoords[1]), getDirection(xCoords[2], yCoords[2]), getDirection(xCoords[3], yCoords[3])});
+        swerveSignal.normalize();
+        return swerveSignal;
     }
 
-    /**x,y inputs are cartesian, angle values are in bearing, returns 0 - 360 */
+    /**automatically creates a rotational joystick value to rotate the robot towards a specific target
+     * 
+     * @param i_target target direction for the robot to face, field centric, radians
+     * @param i_gyro the gyro value, field centric, in radians
+     * @return double that indicates what the rotational joystick value should be
+     */
+    public double getRotControl(double i_target, double i_gyro) {
+        rotErr = MathUtil.angleModulus(i_target - i_gyro);
+        rotPID = rotErr * DriveConstants.ROT_P + (rotErr - prevRotErr) * DriveConstants.ROT_D;  // otherwise spin ccw
+        prevRotErr = rotErr;
+        return rotPID;  // saturate rotation control to range [-1.0, 1.0]
+    }
+
+    /**x,y inputs are cartesian, angle values are in radians, returns 0 - 2pi */
     public double getDirection(double x, double y) {
-        double measurement = Math.toDegrees(Math.atan2(x,y));//returns angle in bearing form
-        if (measurement < 0) {
-            measurement = 360 + measurement;
-        }
-        else if (measurement >= 360) {
-            measurement = measurement - 360;
-        }
-        return measurement;
+        return Math.atan2(y,x);  // this math ensures we always return a value between -pi and pi
     }
     
     public double scaleDeadband(double input, double deadband){
-        if (Math.abs(input) < Math.abs(deadband)) return 0.0;
+        if (Math.abs(input) < deadband) return 0.0;
         return Math.signum(input)*((Math.abs(input) - deadband) / (1.0 - deadband));
     }
     
