@@ -25,6 +25,7 @@ public enum WsSubsystems implements Subsystems {
     
     private String name;
     private Class<?> subsystemClass;
+    private boolean enabled;
 
     /**
      * Initialize name and Subsystem map.
@@ -32,8 +33,19 @@ public enum WsSubsystems implements Subsystems {
      * @param subsystemClass Class containing Subsystem
      */
     WsSubsystems(String name, Class<?> subsystemClass) {
+        this(name, subsystemClass, true);
+    }
+
+    /**
+     * Initialize name and Subsystem map.
+     * @param name Name, must match that in class to prevent errors.
+     * @param subsystemClass Class containing Subsystem
+     * @param enabled Whether the subsystem should be created by SubsystemManager
+     */
+    WsSubsystems(String name, Class<?> subsystemClass, boolean enabled) {
         this.name = name;
         this.subsystemClass = subsystemClass;
+        this.enabled = enabled;
     }
 
     /**
@@ -52,5 +64,14 @@ public enum WsSubsystems implements Subsystems {
     @Override
     public Class<?> getSubsystemClass() {
         return subsystemClass;
+    }
+
+    /**
+     * Returns whether the subsystem is enabled.
+     * @return Subsystem's enabled.
+     */
+    @Override
+    public boolean isEnabled() {
+        return enabled;
     }
 }

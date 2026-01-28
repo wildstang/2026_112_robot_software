@@ -21,4 +21,10 @@ public interface Outputs {
      */
     public OutputConfig getConfig();
 
+    /**
+     * Returns whether the Output is enabled.
+     * @return Output's enabled.
+     */
+    public boolean isEnabled();
+
 }

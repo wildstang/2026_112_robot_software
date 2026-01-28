@@ -32,16 +32,6 @@ public enum WsOutputs implements Outputs {
     // ---------------------------------
 
 
-
-
-    // ---------------------------------
-    // Solenoids
-    // ---------------------------------
-
-    // ---------------------------------
-    // Other
-    // ---------------------------------
-
     ; // end of enum
 
     /**
@@ -52,6 +42,7 @@ public enum WsOutputs implements Outputs {
 
     private String m_name;
     private OutputConfig m_config;
+    private boolean m_enabled;
 
     /**
      * Initialize a new Output.
@@ -59,8 +50,18 @@ public enum WsOutputs implements Outputs {
      * @param p_config Corresponding configuration for OutputType.
      */
     WsOutputs(String p_name, OutputConfig p_config) {
+        this(p_name, p_config, true);
+    }
+
+    /**
+     * Initialize a new Output.
+     * @param p_name Name, must match that in class to prevent errors.
+     * @param p_config Corresponding configuration for OutputType.
+     */
+    WsOutputs(String p_name, OutputConfig p_config, boolean p_enabled) {
         m_name = p_name;
         m_config = p_config;
+        m_enabled = p_enabled;
     }
 
     /**
@@ -77,6 +78,15 @@ public enum WsOutputs implements Outputs {
      */
     public OutputConfig getConfig() {
         return m_config;
+    }
+
+    /**
+     * Returns whether the Output is enabled.
+     * @return Output's enabled.
+     */
+    @Override
+    public boolean isEnabled() {
+        return m_enabled;
     }
 
     /**

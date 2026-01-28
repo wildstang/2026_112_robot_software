@@ -18,4 +18,10 @@ public interface Subsystems {
      * @return Subsystem's class.
      */
     public Class<?> getSubsystemClass();
+
+    /**
+     * Returns whether the subsystem is enabled.
+     * @return Subsystem's enabled.
+     */
+    public boolean isEnabled();
 }

@@ -110,13 +110,18 @@ public class Core {
 
         // Iterate over all output enum values and create an output for each
         for (Outputs output_enum : p_outputs) {
-            Log.info("Creating output: " + output_enum.getName());
+            if (output_enum.isEnabled()) {
+                Log.info("Creating output: " + output_enum.getName());
 
-            // Check if it is digital or analog, to create the correct type
-            output = s_outputFactory.createOutput(output_enum);
+                // Check if it is digital or analog, to create the correct type
+                output = s_outputFactory.createOutput(output_enum);
 
-            // Add the output to the output manager
-            s_outputManager.addOutput(output);
+                // Add the output to the output manager
+                s_outputManager.addOutput(output);
+            }
+            else {
+                Log.info("Skipping output: " + output_enum.getName());
+            }
         }
     }
 
@@ -145,23 +150,27 @@ public class Core {
     public void createSubsystems(Subsystems[] p_subsystems) {
         // Iterate over all input enum values and create a subsystem for each
         for (Subsystems subsystem : p_subsystems) {
-            Log.info("Creating subsystem: " + subsystem.getName());
+            if (subsystem.isEnabled()) {
+                Log.info("Creating subsystem: " + subsystem.getName());
 
-            // Instantiate the class
-            Subsystem sub = (Subsystem) createObject(subsystem.getSubsystemClass());
+                // Instantiate the class
+                Subsystem sub = (Subsystem) createObject(subsystem.getSubsystemClass());
 
-            // Call the init method
-            sub.init();
+                // Call the init method
+                sub.init();
 
-            s_subsystemManager.addSubsystem(sub);
+                s_subsystemManager.addSubsystem(sub);
+            }
+            else {
+                Log.info("Skipping subsystem: " + subsystem.getName());
+            }
         }
-        for (Subsystems subsystem : p_subsystems) {
-            Log.info("Creating subsystem: " + subsystem.getName());
 
-            // Instantiate the class
-            Subsystem sub = (Subsystem) s_subsystemManager.getSubsystem(subsystem);
-            // Call the init method
-            sub.initSubsystems();
+        // Call initSubsystems for each subsystem after they have all been created
+        for (Subsystems subsystem : p_subsystems) {
+            if (subsystem.isEnabled()) {
+                s_subsystemManager.getSubsystem(subsystem).initSubsystems();
+            }
         }
     }
 
