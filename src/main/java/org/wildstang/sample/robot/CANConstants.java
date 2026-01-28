@@ -2,6 +2,7 @@ package org.wildstang.sample.robot;
 
 import java.util.Map;
 
+
 /**
  * CAN Constants are stored here.
  * We primarily use CAN to communicate with Talon motor controllers.
