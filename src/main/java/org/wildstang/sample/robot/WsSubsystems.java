@@ -1,6 +1,7 @@
 package org.wildstang.sample.robot;
 
 import org.wildstang.framework.core.Subsystems;
+import org.wildstang.sample.subsystems.Intake;
 import org.wildstang.sample.subsystems.LED.LedController;
 import org.wildstang.sample.subsystems.launcher.Launcher;
 import org.wildstang.sample.subsystems.localization.Localization;
@@ -16,7 +17,8 @@ public enum WsSubsystems implements Subsystems {
     SWERVE_DRIVE("Swerve Drive", SwerveDrive.class),
     LOCALIZATION("Localization", Localization.class),
     LED("Led Controller", LedController.class),
-    LAUNCHER("Launcher", Launcher.class)
+    LAUNCHER("Launcher", Launcher.class),
+    INTAKE("Intake", Intake.class)
     ;
 
     /**
