@@ -9,6 +9,10 @@
 		]
 	},
 
+	"runArgs": [
+		"--network=host"
+	],
+
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {

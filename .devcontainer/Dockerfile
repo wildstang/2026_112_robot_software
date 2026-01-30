@@ -1,5 +1,7 @@
 FROM mcr.microsoft.com/devcontainers/java:1-17-bookworm
 
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | gpg --dearmor > /usr/share/keyrings/yarn-archive-keyring.gpg
+
 # install dependencies
 RUN apt update
 RUN apt install -y python3-pip git-lfs
