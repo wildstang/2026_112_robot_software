@@ -4,7 +4,6 @@ import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
-import org.littletonrobotics.junction.rlog.RLOGServer;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 import org.littletonrobotics.urcl.URCL;
@@ -17,6 +16,7 @@ import org.wildstang.hardware.roborio.RoboRIOOutputFactory;
 import au.grapplerobotics.CanBridge;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -35,6 +35,12 @@ public class Robot extends LoggedRobot {
 
     Core core;
     private SendableChooser<LogLevel> logChooser;
+
+    private static Alliance autoWinner;
+    private static final int TELEOP_LEN_S = 2 * 60 + 20;
+    private static final int TRANSITION_LEN_S = 10;
+    private static final int SHIFT_LEN_S = 25;
+    private static final int END_GAME_LEN_S = 30;
 
     public Robot(){
         // Set up data receivers & replay source
@@ -195,5 +201,79 @@ public class Robot extends LoggedRobot {
      */
     @Override
     public void testPeriodic() {
+    }
+
+    /**
+     * Returns which alliance won auto (in 2026).
+     * @see <a href="https://docs.wpilib.org/en/stable/docs/yearly-overview/2026-game-data.html">2026 Game Data Details</a>
+     * @return The winning Alliance or null if not known.
+     */
+    private static Alliance getAutoWinner() {
+        if (autoWinner == null) {
+            String gameData = DriverStation.getGameSpecificMessage();
+            if(gameData.length() > 0) {
+                switch (gameData.charAt(0)) {
+                    case 'B' :
+                        autoWinner = Alliance.Blue;
+                    case 'R' :
+                        autoWinner = Alliance.Red;
+                } 
+            }
+        }
+
+        return autoWinner;
+    }
+
+    /**
+     * Determines which alliance's hub is currently active (in 2026).
+     * @return The active Alliance or null if not known.
+     */
+    private static Alliance getActiveHub() {
+        // when the FMS is attached the match time is an integer and counting down from start of period
+        if (DriverStation.isFMSAttached()) {
+            int remainingTime = (int) DriverStation.getMatchTime();
+
+            // both hubs are active before and after the shifts
+            boolean isTransition = remainingTime > TELEOP_LEN_S - TRANSITION_LEN_S;
+            boolean isEndGame = remainingTime <= END_GAME_LEN_S;
+            if (DriverStation.isAutonomous() || isTransition || isEndGame) {
+                return Core.getAlliance();
+            }
+
+            Alliance winner = getAutoWinner();
+
+            // determine which shift number (3-0) is active
+            int period = (remainingTime - END_GAME_LEN_S - 1) / SHIFT_LEN_S;
+
+            // determine if the shift number is odd, if it is return the auto winner
+            if (period % 2 == 1) {
+                return winner;
+            }
+            // otherwise return the non-winning alliance
+            else if (winner == Alliance.Blue) {
+                return Alliance.Red;
+            }
+            else {
+                return Alliance.Blue;
+            }
+        }
+
+        // if we aren't connected to the FMS, there are no shifts and alliance time is not reliable
+        return null;
+    }
+
+    /**
+     * Determines if the hub is active for the current alliance (in 2026).
+     * @return True if the active hub is the current alliance. If there is no active hub (not on a field), dashboard value is returned.
+     */
+    public static boolean isHubActive() {
+        Alliance activeHub = Robot.getActiveHub();
+        if (activeHub == null) {
+            boolean defaultHub = SmartDashboard.getBoolean("Default Hub Active", true);
+            return defaultHub;
+        }
+        else {
+            return activeHub == Core.getAlliance();
+        }
     }
 }
