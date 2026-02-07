@@ -8,9 +8,7 @@ import org.wildstang.framework.hardware.OutputConfig;
 public class WsSparkConfig implements OutputConfig {
 
     private int m_channel = 0;
-    private double m_default;
     private WsMotorControllers controller;
-    private boolean invert;
 
     /**
      * Construct the Phoenix config.
@@ -18,31 +16,8 @@ public class WsSparkConfig implements OutputConfig {
      * @param controller Enumeration representing type of controller.
      */
     public WsSparkConfig(int channel, WsMotorControllers controller) {
-        this(channel, controller, false, 0);
-    }
-
-    /**
-     * Construct the Phoenix config.
-     * @param channel Controller CAN constant.
-     * @param controller Enumeration representing type of controller.
-     * @param invert True if motor output should be inverted.
-     */
-    public WsSparkConfig(int channel, WsMotorControllers controller, boolean invert) {
-        this(channel, controller, invert, 0);
-    }
-
-    /**
-     * Construct the Phoenix config.
-     * @param channel Controller CAN constant.
-     * @param controller Enumeration representing type of controller.
-     * @param invert True if motor output should be inverted.
-     * @param p_default Default output value.
-     */
-    public WsSparkConfig(int channel, WsMotorControllers controller, boolean invert, double p_default) {
         m_channel = channel;
         this.controller = controller;
-        this.invert = invert;
-        m_default = p_default;
     }
 
     /**
@@ -59,22 +34,6 @@ public class WsSparkConfig implements OutputConfig {
      */
     public WsMotorControllers getType() {
         return controller;
-    }
-
-    /**
-     * Returns the default output value.
-     * @return The default value.
-     */
-    public double getDefault() {
-        return m_default;
-    }
-
-    /**
-     * Returns if the controller should be inverted.
-     * @return True if inverted.
-     */
-    public boolean isInverted() {
-        return invert;
     }
 
     /**

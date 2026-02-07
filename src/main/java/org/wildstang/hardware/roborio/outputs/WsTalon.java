@@ -38,7 +38,7 @@ public class WsTalon extends WsMotorController {
     private DutyCycleOut percentRequest = new DutyCycleOut(0.0);
     private PositionDutyCycle positionRequest = new PositionDutyCycle(0.0);
     
-
+    private WsMotorControllers motorControllerType;
     private boolean followerExists = false;
 
     /**
@@ -47,9 +47,10 @@ public class WsTalon extends WsMotorController {
      * @param channel Motor controller CAN constant.
      * @param p_default Default output value.
      */
-    public WsTalon(String name, int channel, String CANBUS, double p_default) {
-        super(name, p_default);
-        motor = new TalonFX(channel, CANBUS);
+    public WsTalon(String name, int channel, WsMotorControllers controller) {
+        super(name);
+        motor = new TalonFX(channel, "mechanism_canivore");
+        motorControllerType = controller;
         motorApply = motor.getConfigurator();
         //percentRequest.withEnableFOC(true);
     }
@@ -60,8 +61,8 @@ public class WsTalon extends WsMotorController {
      * @param CANBUS Attached CAN bus name.
      * @param oppose True if the follow should oppose the direction of this motor.
      */
-    public void addFollower(int canConstant, String CANBUS, boolean oppose) {
-        follower = new TalonFX(canConstant, CANBUS);
+    public void addFollower(int canConstant, WsMotorControllers controller, boolean oppose) {
+        follower = new TalonFX(canConstant, "mechanism_canivore");
         followerApply = follower.getConfigurator();
         followerExists = true;
         MotorAlignmentValue alignment = oppose ? MotorAlignmentValue.Opposed : MotorAlignmentValue.Aligned;

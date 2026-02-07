@@ -1,7 +1,6 @@
 package org.wildstang.hardware.roborio.outputs;
 
 import org.wildstang.framework.io.outputs.AnalogOutput;
-import org.wildstang.hardware.roborio.outputs.config.WsMotorControllers;
 
 /**
  * Abstract class decribing those that control some kind of motor controller.
@@ -14,16 +13,7 @@ public abstract class WsMotorController extends AnalogOutput {
      * @param p_name Descriptive name of the controller.
      */
     public WsMotorController(String p_name) {
-        super(p_name);
-    }
-
-    /**
-     * Generic motor controller constructor, cannot be called.
-     * @param p_name Descriptive name of the controller.
-     * @param p_default Default output value.
-     */
-    public WsMotorController(String p_name, double p_default) {
-        super(p_name, p_default);
+        super(p_name, 0);
     }
 
     /**

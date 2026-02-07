@@ -3,10 +3,9 @@ package org.wildstang.hardware.roborio.outputs;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
@@ -40,17 +39,6 @@ public class WsSpark extends WsMotorController {
     boolean isChanged;
     com.revrobotics.spark.SparkBase.ControlType controlType;
     private double tempLimit;
-    
-    /**
-     * Constructs the motor controller from config.
-     * @param name Descriptive name of the controller.
-     * @param channel Motor controller CAN constant.
-     * @param controller Enumeration representing type of controller.
-     * @param p_default Default output value.
-     */
-    public WsSpark(String name, int channel, WsMotorControllers controller, double p_default) {
-        this(name, channel, controller, p_default, false);
-    }
 
     /**
      * Constructs the motor controller from config.
@@ -58,10 +46,9 @@ public class WsSpark extends WsMotorController {
      * @param channel Motor controller CAN constant.
      * @param controller Enumeration representing type of controller.
      * @param p_default Default output value.
-     * @param invert Invert the motor's direction.
      */
-    public WsSpark(String name, int channel, WsMotorControllers controller, double p_default, boolean invert) {
-        super(name, p_default);
+    public WsSpark(String name, int channel, WsMotorControllers controller) {
+        super(name);
 
         boolean brushless = controller == WsMotorControllers.SPARK_MAX_BRUSHLESS || controller == WsMotorControllers.SPARK_FLEX_BRUSHLESS;
         switch (controller) {
@@ -79,7 +66,6 @@ public class WsSpark extends WsMotorController {
                 Log.error("Invalid motor controller for WsSpark!");
                 return;
         }
-        config.inverted(invert);
         isUsingController = false;
         isChanged = true;
         controlType = ControlType.kDutyCycle;
@@ -156,10 +142,23 @@ public class WsSpark extends WsMotorController {
      * @param limitRPM Sets the line between stallLimitAmps and freeLimitAmps.
      */
     public void setCurrentLimit(int stallLimitAmps, int freeLimitAmps, int limitRPM) {
+        this.setCurrentLimit(stallLimitAmps, freeLimitAmps, limitRPM, false);
+    }
+
+    /**
+     * Sets the current limit of the motor controller.
+     * @param stallLimitAmps The amount of amps drawn before limiting while less than limitRPM.
+     * @param freeLimitAmps The amount of amps drawn before limiting while greater than limitRPM.
+     * @param limitRPM Sets the line between stallLimitAmps and freeLimitAmps.
+     * @param invert Whether to invert the output of the motor.
+     */
+    public void setCurrentLimit(int stallLimitAmps, int freeLimitAmps, int limitRPM, boolean invert) {
         tempLimit = stallLimitAmps;
         config.smartCurrentLimit(stallLimitAmps, freeLimitAmps, limitRPM);
+        config.inverted(invert);
         if (follower != null){
             followerConfig.smartCurrentLimit(stallLimitAmps, freeLimitAmps, limitRPM);
+            followerConfig.inverted(invert);
         }
         enableVoltageCompensation();
         configure();
