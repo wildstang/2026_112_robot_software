@@ -17,7 +17,7 @@ public final class CANConstants {
     //public static final int   EXAMPLE_MOTOR_CONTROLLER      = 3;
 
     //Gyro and CAN sensor values
-    public static final int GYRO = 31;
+    public static final int GYRO = 40;
 
     //swerve constants
     public static final int DRIVE1 = 17; // FL
@@ -29,6 +29,23 @@ public final class CANConstants {
     public static final int DRIVE4 = 13; // BR
     public static final int ANGLE4 = 14;
 
+    // climb
+    public static final int CLIMB_LEFT = 20;
+    public static final int CLIMB_RIGHT = 21;
+
+    // intake
+    public static final int INTAKE_DEPLOY_LEFT = 22;
+    public static final int INTAKE_SPIN = 23;
+    public static final int INTAKE_DEPLOY_RIGHT = 24;
+
+    // shooter
+    public static final int FEEDER = 25;
+    public static final int PREACCEL = 26;
+    public static final int LAUNCHER_LEFT = 27;
+    public static final int LAUNCHER_MIDDLE = 28;
+    public static final int LAUNCHER_RIGHT = 29;
+    public static final int HOOD = 30;
+
     // only needed for REV logging
     public static final Map<Integer, String> aliasMap = Map.ofEntries(
         Map.entry(DRIVE1, "DRIVE1"),
@@ -38,6 +55,19 @@ public final class CANConstants {
         Map.entry(DRIVE3, "DRIVE3"),
         Map.entry(ANGLE3, "ANGLE3"),
         Map.entry(DRIVE4, "DRIVE4"),
-        Map.entry(ANGLE4, "ANGLE4")
+        Map.entry(ANGLE4, "ANGLE4"),
+        
+        Map.entry(CLIMB_LEFT, "CLIMB_LEFT"),
+        Map.entry(CLIMB_RIGHT, "CLIMB_RIGHT"),
+
+        Map.entry(INTAKE_SPIN, "INTAKE_SPIN"),
+
+        Map.entry(FEEDER, "FEEDER"),
+        Map.entry(PREACCEL, "PREACCEL"),
+        Map.entry(LAUNCHER_LEFT, "LAUNCHER_LEFT"),
+        Map.entry(LAUNCHER_MIDDLE, "LAUNCHER_MIDDLE"),
+        Map.entry(LAUNCHER_RIGHT, "LAUNCHER_RIGHT"),
+        Map.entry(HOOD, "HOOD")
+
     );
 }
