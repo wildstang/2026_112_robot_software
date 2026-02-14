@@ -1,8 +1,5 @@
 package org.wildstang.hardware.roborio.outputs;
 
-import org.wildstang.framework.logger.Log;
-import org.wildstang.hardware.roborio.outputs.config.WsMotorControllers;
-
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -12,7 +9,6 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -37,8 +33,6 @@ public class WsTalon extends WsMotorController {
     private RequestType currentRequest = RequestType.PERCENT_OUTPUT;
     private DutyCycleOut percentRequest = new DutyCycleOut(0.0);
     private PositionDutyCycle positionRequest = new PositionDutyCycle(0.0);
-    
-    private WsMotorControllers motorControllerType;
     private boolean followerExists = false;
 
     /**
@@ -47,10 +41,9 @@ public class WsTalon extends WsMotorController {
      * @param channel Motor controller CAN constant.
      * @param p_default Default output value.
      */
-    public WsTalon(String name, int channel, WsMotorControllers controller) {
+    public WsTalon(String name, int channel) {
         super(name);
         motor = new TalonFX(channel, "mechanism_canivore");
-        motorControllerType = controller;
         motorApply = motor.getConfigurator();
         //percentRequest.withEnableFOC(true);
     }
@@ -61,7 +54,7 @@ public class WsTalon extends WsMotorController {
      * @param CANBUS Attached CAN bus name.
      * @param oppose True if the follow should oppose the direction of this motor.
      */
-    public void addFollower(int canConstant, WsMotorControllers controller, boolean oppose) {
+    public void addFollower(int canConstant, boolean oppose) {
         follower = new TalonFX(canConstant, "mechanism_canivore");
         followerApply = follower.getConfigurator();
         followerExists = true;

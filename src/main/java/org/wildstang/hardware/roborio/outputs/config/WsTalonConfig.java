@@ -8,17 +8,14 @@ import org.wildstang.framework.hardware.OutputConfig;
 public class WsTalonConfig implements OutputConfig {
 
     private int m_channel = 0;
-    private WsMotorControllers controller;
 
     /**
      * Construct the Phoenix config.
      * @param channel Controller CAN constant.
-     * @param controller Enumeration representing type of controller.
      * @param invert True if motor output should be inverted.
      */
-    public WsTalonConfig(int channel, WsMotorControllers controller) {
+    public WsTalonConfig(int channel) {
         m_channel = channel;
-        this.controller = controller;
     }
 
     /**
@@ -30,14 +27,6 @@ public class WsTalonConfig implements OutputConfig {
     }
 
     /**
-     * Returns true if the motor controller is a Talon.
-     * @return True if Talon, false if Victor.
-     */
-    public WsMotorControllers getType() {
-        return controller;
-    }
-
-    /**
      * Builds a JSON String describing the Phoenix config.
      * @return Channel number and controller type.
      */
@@ -46,8 +35,6 @@ public class WsTalonConfig implements OutputConfig {
         StringBuffer buf = new StringBuffer();
         buf.append("{\"channel\": ");
         buf.append(m_channel);
-        buf.append(", \"controller\": ");
-        buf.append(controller);
         buf.append("}");
         return buf.toString();
     }

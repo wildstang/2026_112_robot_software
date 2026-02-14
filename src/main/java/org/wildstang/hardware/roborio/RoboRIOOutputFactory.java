@@ -69,15 +69,15 @@ public class RoboRIOOutputFactory implements OutputFactory {
         }
         else if (config instanceof WsTalonConfig) {
             WsTalonConfig c = (WsTalonConfig) config;
-            out = new WsTalon(p_output.getName(), c.getChannel(), c.getType());
+            out = new WsTalon(p_output.getName(), c.getChannel());
         }
         //Note a WsTalonFollower must be defined after its corresponding WsPhoenix
         else if (config instanceof WsTalonFollowerConfig) {
             WsTalonFollowerConfig c = (WsTalonFollowerConfig) config;
-            // Returns the follwed WsPhoenix because a return is required
+            // Returns the followed WsPhoenix because a return is required
             // and duplicate outputs are thrown out when encountered.
             out = Core.getOutputManager().getOutput(c.getFollowing());
-            ((WsTalon) out).addFollower(c.getChannel(), c.getType(), c.isOpposing());
+            ((WsTalon) out).addFollower(c.getChannel(), c.isOpposing());
         }
         else if (config instanceof WsSparkConfig) {
             WsSparkConfig c = (WsSparkConfig) config;
