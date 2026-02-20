@@ -8,6 +8,7 @@ import org.wildstang.framework.io.outputs.Output;
 import org.wildstang.hardware.roborio.outputs.config.WsMotorControllers;
 import org.wildstang.hardware.roborio.outputs.config.WsSparkConfig;
 import org.wildstang.hardware.roborio.outputs.config.WsTalonConfig;
+import org.wildstang.sample.subsystems.launcher.LauncherConstants;
 import org.wildstang.sample.subsystems.swerve.ModuleConstants;
 
 /**
@@ -42,10 +43,10 @@ public enum WsOutputs implements Outputs {
 
     FEEDER("Feeder Motor", new WsSparkConfig(CANConstants.FEEDER, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
     PREACCEL("Pre-Accel Motor", new WsSparkConfig(CANConstants.PREACCEL, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
-    LAUNCHER_MIDDLE("Launcher Middle Motor", new WsSparkConfig(CANConstants.LAUNCHER_MIDDLE, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
-    LAUNCHER_LEFT("Launcher Left Motor", new WsSparkConfig(CANConstants.LAUNCHER_LEFT, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
-    LAUNCHER_RIGHT("Launcher Right Motor", new WsSparkConfig(CANConstants.LAUNCHER_RIGHT, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
-    HOOD("Hood Motor", new WsSparkConfig(CANConstants.HOOD, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
+    LAUNCHER_MIDDLE("Launcher Middle Motor", new WsSparkConfig(CANConstants.LAUNCHER_MIDDLE, WsMotorControllers.SPARK_FLEX_BRUSHLESS, LauncherConstants.middleConfig(), true)),
+    LAUNCHER_LEFT("Launcher Left Motor", new WsSparkConfig(CANConstants.LAUNCHER_LEFT, WsMotorControllers.SPARK_FLEX_BRUSHLESS, LauncherConstants.leftConfig(), true)),
+    LAUNCHER_RIGHT("Launcher Right Motor", new WsSparkConfig(CANConstants.LAUNCHER_RIGHT, WsMotorControllers.SPARK_FLEX_BRUSHLESS, LauncherConstants.rightConfig(), true)),
+    HOOD("Hood Motor", new WsSparkConfig(CANConstants.HOOD, WsMotorControllers.SPARK_MAX_BRUSHLESS, LauncherConstants.hoodConfig(), true)),
 
     ; // end of enum
 

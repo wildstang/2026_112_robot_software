@@ -1,8 +1,8 @@
 package org.wildstang.sample.robot;
 
 import org.wildstang.framework.core.Subsystems;
-import org.wildstang.sample.subsystems.Launcher;
 import org.wildstang.sample.subsystems.LED.LedController;
+import org.wildstang.sample.subsystems.launcher.Launcher;
 import org.wildstang.sample.subsystems.localization.Localization;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
