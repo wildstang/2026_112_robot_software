@@ -25,7 +25,6 @@ import org.wildstang.hardware.roborio.outputs.config.WsRelayConfig;
 import org.wildstang.hardware.roborio.outputs.config.WsServoConfig;
 import org.wildstang.hardware.roborio.outputs.config.WsSolenoidConfig;
 import org.wildstang.hardware.roborio.outputs.config.WsSparkConfig;
-import org.wildstang.hardware.roborio.outputs.config.WsSparkFollowerConfig;
 import org.wildstang.hardware.roborio.outputs.config.WsRemoteAnalogOutputConfig;
 import org.wildstang.hardware.roborio.outputs.config.WsRemoteDigitalOutputConfig;
 
@@ -81,15 +80,10 @@ public class RoboRIOOutputFactory implements OutputFactory {
         }
         else if (config instanceof WsSparkConfig) {
             WsSparkConfig c = (WsSparkConfig) config;
-            out = new WsSpark(p_output.getName(), c.getChannel(), c.getType());
-        }
-        // Note a WsSparkMaxFollower must be defined after its corresponding WsSparkMax
-        else if (config instanceof WsSparkFollowerConfig) {
-            WsSparkFollowerConfig c = (WsSparkFollowerConfig) config;
-            // Returns the follwed WsSparkMax because a return is required
-            // and duplicate outputs are thrown out when encountered.
-            out = Core.getOutputManager().getOutput(c.getFollowing());
-            ((WsSpark) out).addFollower(c.getChannel(), c.getType(), c.isOpposing());
+            out = new WsSpark(p_output.getName(), c.getChannel(), c.getType(), c.getUsingController());
+            if (c.hasConfig()) {
+                ((WsSpark) out).configure(c.getConfig(), true);
+            }
         }
         else if (config instanceof WsSolenoidConfig) {
             WsSolenoidConfig c = (WsSolenoidConfig) config;

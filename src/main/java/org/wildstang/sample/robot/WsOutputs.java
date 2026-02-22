@@ -7,8 +7,8 @@ import org.wildstang.framework.hardware.OutputConfig;
 import org.wildstang.framework.io.outputs.Output;
 import org.wildstang.hardware.roborio.outputs.config.WsMotorControllers;
 import org.wildstang.hardware.roborio.outputs.config.WsSparkConfig;
-import org.wildstang.hardware.roborio.outputs.config.WsSparkFollowerConfig;
 import org.wildstang.hardware.roborio.outputs.config.WsTalonConfig;
+import org.wildstang.sample.subsystems.swerve.ModuleConstants;
 
 /**
  * Output mappings are stored here.
@@ -20,21 +20,21 @@ public enum WsOutputs implements Outputs {
     // ---------------------------------
     // Drive Motors
     // ---------------------------------
-    DRIVE1("Module 1 Drive Motor", new WsSparkConfig(CANConstants.DRIVE1, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
-    ANGLE1("Module 1 Angle Motor", new WsSparkConfig(CANConstants.ANGLE1, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
-    DRIVE2("Module 2 Drive Motor", new WsSparkConfig(CANConstants.DRIVE2, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
-    ANGLE2("Module 2 Angle Motor", new WsSparkConfig(CANConstants.ANGLE2, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
-    DRIVE3("Module 3 Drive Motor", new WsSparkConfig(CANConstants.DRIVE3, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
-    ANGLE3("Module 3 Angle Motor", new WsSparkConfig(CANConstants.ANGLE3, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
-    DRIVE4("Module 4 Drive Motor", new WsSparkConfig(CANConstants.DRIVE4, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
-    ANGLE4("Module 4 Angle Motor", new WsSparkConfig(CANConstants.ANGLE4, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
+    DRIVE1("Module 1 Drive Motor", new WsSparkConfig(CANConstants.DRIVE1, WsMotorControllers.SPARK_FLEX_BRUSHLESS, ModuleConstants.driveConfig(), true)),
+    ANGLE1("Module 1 Angle Motor", new WsSparkConfig(CANConstants.ANGLE1, WsMotorControllers.SPARK_MAX_BRUSHLESS, ModuleConstants.angleConfig(), true)),
+    DRIVE2("Module 2 Drive Motor", new WsSparkConfig(CANConstants.DRIVE2, WsMotorControllers.SPARK_FLEX_BRUSHLESS, ModuleConstants.driveConfig(), true)),
+    ANGLE2("Module 2 Angle Motor", new WsSparkConfig(CANConstants.ANGLE2, WsMotorControllers.SPARK_MAX_BRUSHLESS, ModuleConstants.angleConfig(), true)),
+    DRIVE3("Module 3 Drive Motor", new WsSparkConfig(CANConstants.DRIVE3, WsMotorControllers.SPARK_FLEX_BRUSHLESS, ModuleConstants.driveConfig(), true)),
+    ANGLE3("Module 3 Angle Motor", new WsSparkConfig(CANConstants.ANGLE3, WsMotorControllers.SPARK_MAX_BRUSHLESS, ModuleConstants.angleConfig(), true)),
+    DRIVE4("Module 4 Drive Motor", new WsSparkConfig(CANConstants.DRIVE4, WsMotorControllers.SPARK_FLEX_BRUSHLESS, ModuleConstants.driveConfig(), true)),
+    ANGLE4("Module 4 Angle Motor", new WsSparkConfig(CANConstants.ANGLE4, WsMotorControllers.SPARK_MAX_BRUSHLESS, ModuleConstants.angleConfig(), true)),
     
     // ---------------------------------
     // Other Motors
     // ---------------------------------
 
     CLIMB_LEFT("Left Climb Motor", new WsSparkConfig(CANConstants.CLIMB_LEFT, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
-    CLIMB_RIGHT("Right Climb Motor", new WsSparkFollowerConfig("Left Climb Motor", CANConstants.CLIMB_RIGHT, WsMotorControllers.SPARK_FLEX_BRUSHLESS, true)),
+    CLIMB_RIGHT("Right Climb Motor", new WsSparkConfig(CANConstants.CLIMB_RIGHT, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
     
     INTAKE_DEPLOY_LEFT("Left Intake Deploy Motor", new WsTalonConfig(CANConstants.INTAKE_DEPLOY_LEFT)),
     INTAKE_SPIN("Intake Spin Motor", new WsSparkConfig(CANConstants.INTAKE_SPIN, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
@@ -43,8 +43,8 @@ public enum WsOutputs implements Outputs {
     FEEDER("Feeder Motor", new WsSparkConfig(CANConstants.FEEDER, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
     PREACCEL("Pre-Accel Motor", new WsSparkConfig(CANConstants.PREACCEL, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
     LAUNCHER_MIDDLE("Launcher Middle Motor", new WsSparkConfig(CANConstants.LAUNCHER_MIDDLE, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
-    LAUNCHER_LEFT("Launcher Left Motor", new WsSparkFollowerConfig("Launcher Middle Motor", CANConstants.LAUNCHER_LEFT, WsMotorControllers.SPARK_FLEX_BRUSHLESS, false)),
-    LAUNCHER_RIGHT("Launcher Right Motor", new WsSparkFollowerConfig("Launcher Middle Motor", CANConstants.LAUNCHER_RIGHT, WsMotorControllers.SPARK_FLEX_BRUSHLESS,true)),
+    LAUNCHER_LEFT("Launcher Left Motor", new WsSparkConfig(CANConstants.LAUNCHER_LEFT, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
+    LAUNCHER_RIGHT("Launcher Right Motor", new WsSparkConfig(CANConstants.LAUNCHER_RIGHT, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
     HOOD("Hood Motor", new WsSparkConfig(CANConstants.HOOD, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
 
     ; // end of enum

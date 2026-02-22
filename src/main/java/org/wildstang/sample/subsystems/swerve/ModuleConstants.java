@@ -1,5 +1,10 @@
 package org.wildstang.sample.subsystems.swerve;
 
+import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
+
 public class ModuleConstants {
     
     /**drive motor gear ratio */
@@ -23,4 +28,33 @@ public class ModuleConstants {
     public static final int DRIVE_CURRENT_LIMIT = 50;
     /**Angle motor current limit */
     public static final int ANGLE_CURRENT_LIMIT = 10;
+
+    public static SparkFlexConfig driveConfig() {
+        SparkFlexConfig config = new SparkFlexConfig();
+        config.smartCurrentLimit(DRIVE_CURRENT_LIMIT, DRIVE_CURRENT_LIMIT);
+        config.idleMode(IdleMode.kBrake);
+
+        config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+        config.closedLoop.pid(DRIVE_P, DRIVE_I, DRIVE_D);
+
+        return config;
+    }
+
+    public static SparkMaxConfig angleConfig() {
+        SparkMaxConfig config = new SparkMaxConfig();
+        config.smartCurrentLimit(ANGLE_CURRENT_LIMIT, ANGLE_CURRENT_LIMIT);
+        config.idleMode(IdleMode.kBrake);
+
+        config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+        config.closedLoop.pid(ANGLE_P, ANGLE_I, ANGLE_D);
+        config.closedLoop.positionWrappingEnabled(true);
+        config.closedLoop.positionWrappingMaxInput(Math.PI);
+        config.closedLoop.positionWrappingMinInput(-Math.PI);
+
+        config.absoluteEncoder.positionConversionFactor(2 * Math.PI);
+        config.absoluteEncoder.velocityConversionFactor((2 * Math.PI) / 60);
+        config.absoluteEncoder.inverted(true);
+
+        return config;
+    }
 }
