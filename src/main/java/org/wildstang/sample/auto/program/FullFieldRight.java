@@ -25,12 +25,7 @@ public class FullFieldRight extends AutoProgram {
 
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
       
-        addStep(new SetGyroStep(270.0));
-
-        AutoParallelStepGroup group0 = new AutoParallelStepGroup();
-        group0.addStep(new SetLauncherStep());
-        addStep(group0);
-
+        addStep(new SetGyroStep(4.71239));
 
         AutoParallelStepGroup group1 = new AutoParallelStepGroup();
         group1.addStep(new SwervePathFollowerStep("OverRightBump3", swerve));

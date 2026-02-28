@@ -9,6 +9,7 @@ import org.wildstang.hardware.roborio.outputs.WsSpark;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
+import org.wildstang.sample.subsystems.intake.Intake;
 import org.wildstang.sample.subsystems.localization.Localization;
 import org.wildstang.sample.subsystems.localization.LocalizationConstants;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
@@ -40,6 +41,7 @@ public class Launcher implements Subsystem {
 
     private Localization localization;
     private SwerveDrive drive;
+    private Intake intake;
 
     private WsJoystickAxis l2trigger;
     private WsJoystickAxis r2DriverTrigger;
@@ -95,6 +97,7 @@ public class Launcher implements Subsystem {
     public void initSubsystems() {
         localization = (Localization) Core.getSubsystemManager().getSubsystem(WsSubsystems.LOCALIZATION);
         drive = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
+        intake = (Intake) Core.getSubsystemManager().getSubsystem(WsSubsystems.INTAKE);
     }
 
     private double getHoodRotation() {
@@ -109,7 +112,7 @@ public class Launcher implements Subsystem {
         if (operatorMode) {
             return targetLauncherVelocity;
         } else {
-            return 330.7127 * distance + 710.1222;
+            return Math.min(373.60706 * distance + 688.26387, 4000);
         }
     }
 
@@ -135,6 +138,7 @@ public class Launcher implements Subsystem {
         double hoodAngle = isFeedMode ? feedingModeAngle : calculateHoodAngle(targetHoodAngle);
         double newLauncherSpeed = isFeedMode ? feedingModeRpm : calculateLauncherSpeed(distance);
 
+        // preaccell and launcher speed
         if (runLauncher || isFeedMode) {
             if (newLauncherSpeed == 0) {
                 launcherMiddle.setSpeed(0);
@@ -148,15 +152,32 @@ public class Launcher implements Subsystem {
             preAccel.setSpeed(0);
         }
 
-        if (launcherMiddle.getVelocity() > targetLauncherVelocity) {
+        // operator mode override
+        if (operatorMode) {
+            newLauncherSpeed = targetLauncherVelocity;
+        }
+
+        // vision override mode
+        if (drive.getVisionOverride()) {
+            newLauncherSpeed = 1850;
+
+            setHoodRotation(0);
+            preAccel.setSpeed(1);
+            launcherMiddle.setVelocity(newLauncherSpeed);
+        }
+
+        // deadband for feed enabling
+        if (launcherMiddle.getVelocity() > newLauncherSpeed + 50) {
             shouldFeed = true;
-        } else if (launcherMiddle.getVelocity() < targetLauncherVelocity - 100 || targetLauncherVelocity == 0) {
+        } else if (launcherMiddle.getVelocity() < newLauncherSpeed - 100 || newLauncherSpeed == 0) {
             shouldFeed = false;
         }
 
+        // enable/disable feed
         if (overrideFeedInput) {
             feed.setSpeed(newFeedSpeed);
-        } else if (shouldFeed || drive.getVisionOverride()) {
+        } else if (shouldFeed) { // || drive.getVisionOverride()
+            //if (!intake.isDeployed()) intake.deployIntake();
             feed.setSpeed(1);
         } else {
             feed.setSpeed(0);
@@ -235,13 +256,18 @@ public class Launcher implements Subsystem {
 
     }
 
-    public void launch() {
+    public void startLaunch() {
         runLauncher = true;
     }
     
+    public void stopLaunch(){
+        runLauncher = false;
+    }
+
     public void constantLaunch(boolean active) {
         runLauncher = active;
     }
+
     @Override
     public void selfTest() {
     }

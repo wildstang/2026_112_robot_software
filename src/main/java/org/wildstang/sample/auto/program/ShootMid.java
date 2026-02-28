@@ -1,15 +1,14 @@
 package org.wildstang.sample.auto.program;
 
 import org.wildstang.framework.auto.AutoProgram;
-import org.wildstang.framework.auto.steps.AutoParallelStepGroup;
 import org.wildstang.framework.auto.steps.SwervePathFollowerStep;
+import org.wildstang.framework.auto.steps.control.AutoStepDelay;
 import org.wildstang.framework.auto.steps.control.AutoStepStopAutonomous;
-import org.wildstang.sample.auto.steps.SetIntakeStep;
+import org.wildstang.framework.core.Core;
+import org.wildstang.sample.auto.steps.SetGyroStep;
+import org.wildstang.sample.auto.steps.SetLauncherStep;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
-import org.wildstang.framework.core.Core;
-import org.wildstang.sample.auto.steps.SetLauncherStep;
-import org.wildstang.sample.auto.steps.SetGyroStep;
 
 
 /**
@@ -32,10 +31,12 @@ public class ShootMid extends AutoProgram {
 
         addStep(new SetGyroStep(0.0));
 
-         AutoParallelStepGroup group1 = new AutoParallelStepGroup();
-         group1.addStep(new SwervePathFollowerStep("shootMid", swerve));
-         group1.addStep(new SetLauncherStep());
+        addStep(new SwervePathFollowerStep("shootMid", swerve));
+        
+        addStep(new AutoStepDelay(1000));
 
+        addStep(new SetLauncherStep());
+        
         addStep(new AutoStepStopAutonomous());
 
         

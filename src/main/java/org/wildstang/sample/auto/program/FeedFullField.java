@@ -27,7 +27,7 @@ public class FeedFullField extends AutoProgram {
 
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
 
-        addStep(new SetGyroStep(270.0));
+        addStep(new SetGyroStep(4.71239));
 
         AutoParallelStepGroup group0 = new AutoParallelStepGroup();
         group0.addStep(new SetLauncherStep());

@@ -17,6 +17,7 @@ public class SetConstantLauncherStep extends AutoStep{
     public void initialize() {
         launcher = (Launcher) Core.getSubsystemManager().getSubsystem(WsSubsystems.LAUNCHER);
     }
+
     @Override
     public void update() {
         launcher.constantLaunch(active);

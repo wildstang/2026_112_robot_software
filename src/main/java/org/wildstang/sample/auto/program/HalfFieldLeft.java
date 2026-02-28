@@ -1,16 +1,15 @@
 package org.wildstang.sample.auto.program;
 
 import org.wildstang.framework.auto.AutoProgram;
-import org.wildstang.framework.auto.AutoStep;
 import org.wildstang.framework.auto.steps.AutoParallelStepGroup;
 import org.wildstang.framework.auto.steps.SwervePathFollowerStep;
 import org.wildstang.framework.auto.steps.control.AutoStepStopAutonomous;
-import org.wildstang.sample.robot.WsSubsystems;
-import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 import org.wildstang.framework.core.Core;
+import org.wildstang.sample.auto.steps.SetGyroStep;
 import org.wildstang.sample.auto.steps.SetIntakeStep;
 import org.wildstang.sample.auto.steps.SetLauncherStep;
-import org.wildstang.sample.auto.steps.SetGyroStep;
+import org.wildstang.sample.robot.WsSubsystems;
+import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 
 public class HalfFieldLeft extends AutoProgram {
@@ -26,12 +25,11 @@ public class HalfFieldLeft extends AutoProgram {
 
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
 
-        addStep(new SetGyroStep(270.0));
+        addStep(new SetGyroStep(4.71239 + Math.PI / 12));
       
         AutoParallelStepGroup group0 = new AutoParallelStepGroup();
         group0.addStep(new SetLauncherStep());
         addStep(group0);
-
 
         AutoParallelStepGroup group1 = new AutoParallelStepGroup();
         group1.addStep(new SwervePathFollowerStep("OverLeftBump2", swerve));
@@ -57,11 +55,11 @@ public class HalfFieldLeft extends AutoProgram {
         addStep(group5);
 
         AutoParallelStepGroup group6 = new AutoParallelStepGroup();
-        group3.addStep(new SwervePathFollowerStep("BackToBeg", swerve));
+        group6.addStep(new SwervePathFollowerStep("BackToBeg", swerve));
         addStep(group6);
 
         //second run
-         AutoParallelStepGroup group7 = new AutoParallelStepGroup();
+        AutoParallelStepGroup group7 = new AutoParallelStepGroup();
         group7.addStep(new SwervePathFollowerStep("OverLeftBump2", swerve));
         addStep(group7);
 

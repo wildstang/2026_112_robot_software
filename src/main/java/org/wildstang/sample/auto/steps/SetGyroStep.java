@@ -6,25 +6,36 @@ import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 
+
 public class SetGyroStep extends AutoStep{
 
-    public double angle; 
-    public SwerveDrive swerve;
+    private double angle; 
+    private SwerveDrive swerve;
 
     public SetGyroStep(double angle){
         this.angle = angle;
     }
 
     @Override
-    public void initialize() {}
+    public void initialize() {
+        
+    }
 
     @Override
     public void update() {
-      if( Core.isBlueAlliance() ) {
-        swerve.setGyro(angle);
-      } else {
-        swerve.setGyro(angle + Math.PI);
-      }
+
+        swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
+        
+        try {
+            if(Core.isBlueAlliance()) {
+                swerve.setGyro(angle);
+            } else {
+                swerve.setGyro(angle + Math.PI);
+            }
+        } catch (NullPointerException exception) {
+            System.err.println(exception);
+        }
+        
         setFinished();
     }
 

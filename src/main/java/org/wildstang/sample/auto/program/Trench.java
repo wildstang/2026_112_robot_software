@@ -19,7 +19,7 @@ public class Trench extends AutoProgram {
      @Override
     public void defineSteps() {
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
-        addStep(new SetGyroStep(270.0));        
+        addStep(new SetGyroStep(4.71239));        
         addStep(new SetLauncherStep());
         addStep(new AutoStepStopAutonomous());
 

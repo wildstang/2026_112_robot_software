@@ -73,7 +73,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     private static final double DEG_TO_RAD = Math.PI / 180.0;
     private static final double RAD_TO_DEG = 180.0 / Math.PI;
-    public boolean visionOverride = false;
+    private boolean visionOverride = false;
 
     public final Field2d m_field = new Field2d();
     private SwerveModuleState[] moduleStates;
