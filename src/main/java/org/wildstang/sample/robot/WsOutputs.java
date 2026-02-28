@@ -9,6 +9,7 @@ import org.wildstang.hardware.roborio.outputs.config.WsMotorControllers;
 import org.wildstang.hardware.roborio.outputs.config.WsSparkConfig;
 import org.wildstang.hardware.roborio.outputs.config.WsTalonConfig;
 import org.wildstang.sample.subsystems.launcher.LauncherConstants;
+import org.wildstang.sample.subsystems.intake.IntakeConstants;
 import org.wildstang.sample.subsystems.swerve.ModuleConstants;
 
 /**
@@ -38,8 +39,8 @@ public enum WsOutputs implements Outputs {
     CLIMB_RIGHT("Right Climb Motor", new WsSparkConfig(CANConstants.CLIMB_RIGHT, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
     
     //INTAKE_DEPLOY_LEFT("Left Intake Deploy Motor", new WsTalonConfig(CANConstants.INTAKE_DEPLOY_LEFT)),
-    INTAKE_DEPLOY_LEFT("Left Intake Deploy Motor", new WsSparkConfig(CANConstants.INTAKE_DEPLOY_LEFT, WsMotorControllers.SPARK_MAX_BRUSHLESS)),
-    INTAKE_SPIN("Intake Spin Motor", new WsSparkConfig(CANConstants.INTAKE_SPIN, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
+    INTAKE_DEPLOY_LEFT("Left Intake Deploy Motor", new WsSparkConfig(CANConstants.INTAKE_DEPLOY_LEFT, WsMotorControllers.SPARK_MAX_BRUSHLESS, IntakeConstants.leftConfig(), true)),
+    INTAKE_SPIN("Intake Spin Motor", new WsSparkConfig(CANConstants.INTAKE_SPIN, WsMotorControllers.SPARK_FLEX_BRUSHLESS, IntakeConstants.spinConfig())),
     INTAKE_DEPLOY_RIGHT("Right Intake Deploy Motor", new WsTalonConfig(CANConstants.INTAKE_DEPLOY_RIGHT)),
 
     FEEDER("Feeder Motor", new WsSparkConfig(CANConstants.FEEDER, WsMotorControllers.SPARK_MAX_BRUSHLESS, LauncherConstants.feedConfig())),
