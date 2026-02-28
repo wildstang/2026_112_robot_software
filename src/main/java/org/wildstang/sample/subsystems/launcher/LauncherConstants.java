@@ -28,6 +28,10 @@ public class LauncherConstants {
     public static final double LAUNCHER_kV = 0.0019;
     public static final double LAUNCHER_kA = 0.00149;
     public static final int LAUNCHER_LIMIT = 60;
+    public static final int LAUNCHER_STALL_LIMIT = 40;
+
+    public static final int PREACCEL_LIMIT = 40;
+    public static final int FEED_LIMIT = 40;
 
     public static SparkMaxConfig hoodConfig() {
         SparkMaxConfig config = new SparkMaxConfig();
@@ -42,7 +46,7 @@ public class LauncherConstants {
 
     public static SparkFlexConfig middleConfig() {
         SparkFlexConfig config = new SparkFlexConfig();
-        config.smartCurrentLimit(LAUNCHER_LIMIT, LAUNCHER_LIMIT);
+        config.smartCurrentLimit(LAUNCHER_STALL_LIMIT, LAUNCHER_LIMIT);
         config.idleMode(IdleMode.kCoast);
 
         config.encoder.quadratureAverageDepth(4);
@@ -69,6 +73,24 @@ public class LauncherConstants {
         config.smartCurrentLimit(LAUNCHER_LIMIT, LAUNCHER_LIMIT);
         config.follow(CANConstants.LAUNCHER_MIDDLE, true);
         config.idleMode(IdleMode.kCoast);
+
+        return config;
+    }
+
+    public static SparkMaxConfig preAccelConfig() {
+        SparkMaxConfig config = new SparkMaxConfig();
+        config.smartCurrentLimit(PREACCEL_LIMIT, PREACCEL_LIMIT);
+        config.idleMode(IdleMode.kCoast);
+        config.inverted(true);
+
+        return config;
+    }
+
+    public static SparkMaxConfig feedConfig() {
+        SparkMaxConfig config = new SparkMaxConfig();
+        config.smartCurrentLimit(FEED_LIMIT, FEED_LIMIT);
+        config.idleMode(IdleMode.kBrake);
+        config.inverted(true);
 
         return config;
     }

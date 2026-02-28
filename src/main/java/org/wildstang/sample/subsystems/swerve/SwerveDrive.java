@@ -66,7 +66,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     public SwerveDriveKinematics swerveKinematics;
 
-    public enum DriveState {TELEOP, AUTO};
+    public enum DriveState {LAUNCH, TELEOP, AUTO};
     public DriveState driveState;
     private Pose2d curPose;
 
@@ -188,6 +188,12 @@ public class SwerveDrive extends SwerveDriveTemplate {
                 xOutput = xInput;
                 yOutput = yInput;
                 rOutput = rInput;
+                break;
+
+            case LAUNCH:
+                xOutput = xInput;
+                yOutput = yInput;
+                rOutput = swerveHelper.getRotControl(MathUtil.angleModulus(loc.getTargetAngle()), MathUtil.angleModulus(curPose.getRotation().getRadians()));
                 break;
         }
         

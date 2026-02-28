@@ -11,17 +11,16 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.inputs.Input;
-import org.wildstang.framework.logger.Log;
 import org.wildstang.framework.subsystems.Subsystem;
 
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -34,22 +33,19 @@ public class Localization implements Subsystem {
     
     private SwerveDrive drive;
     private SwerveDrivePoseEstimator estimator;
-    private PhotonPoseEstimator frontEstimator, rearEstimator;
-    private PhotonCamera frontCam, rearCam;
+    private PhotonPoseEstimator leftEstimator, rightEstimator;
+    private PhotonCamera leftCam, rightCam;
     private Matrix<N3, N1> curStdDevs;
-    private Pose2d currentPose, bestPose;
-    StructPublisher<Pose2d> posePublisher, bestPosePublisher, frontCamPublisher, rearCamPublisher;
-    StructArrayPublisher<Pose2d> frontVisTargetPublisher, rearVisTargetPublisher;
+    private Pose2d currentPose;
+    StructPublisher<Pose2d> posePublisher, bestPosePublisher, leftCamPublisher, rightCamPublisher;
+    StructArrayPublisher<Pose2d> leftVisTargetPublisher, rightVisTargetPublisher;
     StructArrayPublisher<SwerveModulePosition> modulePosPublisher;
     StructPublisher<Rotation2d> odoAngPublisher;
     Optional<EstimatedRobotPose> visionEst;
     List<PhotonTrackedTarget> targets;
     Pose2d[] visTargets;
     Double[] targetAmbiguity;
-    public boolean frontHasEst, rearHasEst = false;
-
-    private static enum TargetType {REEF, PROCESSOR, BARGE};
-    private TargetType target = null;
+    public boolean leftHasEst, rightHasEst = false;
 
     @Override
     public void init() {
@@ -57,20 +53,19 @@ public class Localization implements Subsystem {
         odoAngPublisher = NetworkTableInstance.getDefault().getStructTopic("odo angle", Rotation2d.struct).publish();
         currentPose = new Pose2d();
         posePublisher = NetworkTableInstance.getDefault().getStructTopic("Pose Estimator", Pose2d.struct).publish();
-        bestPose = new Pose2d();
         bestPosePublisher = NetworkTableInstance.getDefault().getStructTopic("Best Pose Target", Pose2d.struct).publish();
 
-        frontCam = new PhotonCamera(LocalizationConstants.kFrontCam);
-        frontEstimator = new PhotonPoseEstimator(LocalizationConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, LocalizationConstants.kBotToFrontCam);
-        frontEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-        frontCamPublisher = NetworkTableInstance.getDefault().getStructTopic("Front Cam Pose Estimator", Pose2d.struct).publish();
-        frontVisTargetPublisher = NetworkTableInstance.getDefault().getStructArrayTopic("Front Vision Targets", Pose2d.struct).publish();
+        leftCam = new PhotonCamera(LocalizationConstants.kLeftCam);
+        leftEstimator = new PhotonPoseEstimator(LocalizationConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, LocalizationConstants.kBotToLeftCam);
+        leftEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+        leftCamPublisher = NetworkTableInstance.getDefault().getStructTopic("Left Cam Pose Estimator", Pose2d.struct).publish();
+        leftVisTargetPublisher = NetworkTableInstance.getDefault().getStructArrayTopic("Left Vision Targets", Pose2d.struct).publish();
 
-        rearCam = new PhotonCamera(LocalizationConstants.kRearCam);
-        rearEstimator = new PhotonPoseEstimator(LocalizationConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, LocalizationConstants.kBotToRearCam);
-        rearEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
-        rearCamPublisher = NetworkTableInstance.getDefault().getStructTopic("Rear Cam Pose Estimator", Pose2d.struct).publish();
-        rearVisTargetPublisher = NetworkTableInstance.getDefault().getStructArrayTopic("Rear Vision Targets", Pose2d.struct).publish();
+        rightCam = new PhotonCamera(LocalizationConstants.kRightCam);
+        rightEstimator = new PhotonPoseEstimator(LocalizationConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, LocalizationConstants.kBotToRightCam);
+        rightEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
+        rightCamPublisher = NetworkTableInstance.getDefault().getStructTopic("Right Cam Pose Estimator", Pose2d.struct).publish();
+        rightVisTargetPublisher = NetworkTableInstance.getDefault().getStructArrayTopic("Right Vision Targets", Pose2d.struct).publish();
     }
 
     @Override
@@ -91,8 +86,8 @@ public class Localization implements Subsystem {
         odoAngPublisher.set(drive.getOdoAngle());
 
         // Update pose estimator with vision estimates
-        frontHasEst |= processPVResults(frontCam, frontEstimator, frontVisTargetPublisher, frontCamPublisher);
-        rearHasEst |= processPVResults(rearCam, rearEstimator, rearVisTargetPublisher, rearCamPublisher);
+        leftHasEst |= processPVResults(leftCam, leftEstimator, leftVisTargetPublisher, leftCamPublisher);
+        rightHasEst |= processPVResults(rightCam, rightEstimator, rightVisTargetPublisher, rightCamPublisher);
 
         // Get current pose estimate after all updates
         currentPose = estimator.getEstimatedPosition();
@@ -127,8 +122,8 @@ public class Localization implements Subsystem {
 
     private void putDashboard () {
         posePublisher.set(currentPose);
-        SmartDashboard.putBoolean("front cam has est", frontHasEst);
-        SmartDashboard.putBoolean("rear cam has est", rearHasEst);
+        SmartDashboard.putBoolean("Left Has Est", leftHasEst);
+        SmartDashboard.putBoolean("Right Has Est", rightHasEst);
     }
 
     private void updateEstimationStdDevs(Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets) {
@@ -182,70 +177,92 @@ public class Localization implements Subsystem {
 
     public void setCurrentPose(Pose2d newPose){
         estimator.resetPosition(drive.getOdoAngle(), drive.getOdoPosition(), newPose);
-        frontEstimator.setLastPose(newPose);
-        rearEstimator.setLastPose(newPose);
-        frontHasEst = false;
-        rearHasEst = false;
+        leftEstimator.setLastPose(newPose);
+        rightEstimator.setLastPose(newPose);
+        leftHasEst = false;
+        rightHasEst = false;
     }
 
-    // return closest direction to face for scoring in processor
-    public boolean getNearestProcessorDirection() {
-        boolean isFront = true;
-        bestPose = (currentPose.getX() < LocalizationConstants.MID_FIELD_X) ? LocalizationConstants.BLUE_PROCESSOR : LocalizationConstants.RED_PROCESSOR;
-        if (Math.abs(MathUtil.angleModulus(currentPose.getRotation().getRadians() - bestPose.getRotation().getRadians())) > Math.PI / 2.0) {
-            bestPose = new Pose2d(bestPose.getTranslation(), bestPose.getRotation().plus(Rotation2d.kPi));
-            isFront = false;
-        }
-
-        target = TargetType.PROCESSOR;
-        bestPosePublisher.set(bestPose);  // publish updated bestPose
-        return isFront;
-    }
-
-    // returns the processor target pose corresponding to the current side of the field the robot is on
-    public Pose2d getNearestProcessorPose() {
-        if (target != TargetType.PROCESSOR) {
-            Log.warn("Returning Processor pose, but Processor has not been called by ArmLift yet");
-            getNearestProcessorDirection();
-        }
-        target = null;  // reset target to ensure proper function call order each loop
-        return bestPose;
-    }
-
-    // return closest direction to face for scoring in the net
-    public boolean getNearestBargeDirection() {
+    private Translation2d getAllianceHub() {
         double xTarget; 
-        double rTarget = 0.0;
-        boolean isFront;
-        if (currentPose.getX() < LocalizationConstants.MID_FIELD_X) {
-            xTarget = LocalizationConstants.BLUE_NET_X;
-            isFront = true;
-            if (Math.abs(MathUtil.angleModulus(currentPose.getRotation().getRadians())) > Math.PI / 2.0) {
-                rTarget = Math.PI;
-                isFront = false;
-            }
-        } else {
-            xTarget = LocalizationConstants.RED_NET_X;
-            isFront = false;
-            if (Math.abs(MathUtil.angleModulus(currentPose.getRotation().getRadians())) > Math.PI / 2.0) {
-                rTarget = Math.PI;
-                isFront = true;
-            }
-        }
-        bestPose = new Pose2d(xTarget, currentPose.getY(), new Rotation2d(rTarget));
+        double yTarget;
 
-        target = TargetType.BARGE;
-        bestPosePublisher.set(bestPose);  // publish updated bestPose
-        return isFront;
+        if (Core.isBlueAlliance()) {
+            xTarget = LocalizationConstants.BLUE_HUB_X;
+            yTarget = LocalizationConstants.BLUE_HUB_Y;
+        } else {
+            xTarget = LocalizationConstants.RED_HUB_X;
+            yTarget = LocalizationConstants.RED_HUB_Y;
+        }
+
+        double deltaX = currentPose.getX() - xTarget;
+        double deltaY = currentPose.getY() - yTarget;
+        
+        Translation2d translation = new Translation2d(deltaX, deltaY);
+        return translation;
     }
 
-    public Pose2d getNearestBargePose() {
-        if (target != TargetType.BARGE) {
-            Log.warn("Returning Barge pose, but Barge has not been called by ArmLift yet");
-            getNearestBargeDirection();
+    /**
+     * Calculates the distance to the alliance's hub.
+     * @return Distance to the hub in meters.
+     */
+    public double getAllianceHubDistance() {
+        return getAllianceHub().getNorm();
+    }
+
+    /**
+     * Calculates the angle to the alliance's hub.
+     * @return Angle to the hub in radians.
+     */
+    public double getAllianceHubAngle() {
+        Rotation2d robotCentric = getAllianceHub().getAngle();
+        return currentPose.getRotation().plus(robotCentric).getRadians();
+    }
+
+    private Translation2d getTarget() {
+        double xTarget = 0;
+        if (Core.isBlueAlliance() && currentPose.getX() > LocalizationConstants.BLUE_HUB_X) {
+            xTarget = LocalizationConstants.BLUE_HUB_X;
         }
-        target = null;  // reset target to ensure proper function call order each loop
-        return bestPose;
+        else if (Core.isRedAlliance() && currentPose.getX() < LocalizationConstants.RED_HUB_X) {
+            xTarget = LocalizationConstants.RED_HUB_X;
+        }
+        else {
+            return getAllianceHub();
+        }
+
+        double yTarget = LocalizationConstants.BLUE_HUB_Y;
+        if (currentPose.getY() < LocalizationConstants.BLUE_HUB_Y) {
+            yTarget /= 2;
+        }
+        else {
+            yTarget *= 1.5;
+        }
+
+        double deltaX = currentPose.getX() - xTarget;
+        double deltaY = currentPose.getY() - yTarget;
+        
+        Translation2d translation = new Translation2d(deltaX, deltaY);
+        return translation;
+    }
+
+    /**
+     * Calculates the distance to the target.
+     * The target is the alliance's hub if in the alliance's zone, otherwise it is halfway between the hub and the wall.
+     * @return Distance to the target in meters.
+     */
+    public double getTargetDistance() {
+        return getTarget().getNorm();
+    }
+
+    /**
+     * Calculates the angle to the target.
+     * The target is the alliance's hub if in the alliance's zone, otherwise it is halfway between the hub and the wall.
+     * @return Angle to the target in radians.
+     */
+    public double getTargetAngle() {
+        Rotation2d robotCentric = getTarget().getAngle();
+        return currentPose.getRotation().plus(robotCentric).getRadians();
     }
 
     @Override
