@@ -9,16 +9,16 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 public class IntakeConstants {
 
     public static final int SPIN_LIMIT = 60;
-    public static final int SPIN_STALL_LIMIT = 40;
+    public static final int SPIN_STALL_LIMIT = 60;
 
 
     public static final int DEPLOY_STALL_LIMIT = 30;
     public static final int DEPLOY_LIMIT = 60;
-    public static final double DEPLOY_P = 0.1;
+    public static final double DEPLOY_P = 0.1 / 3;
     public static final double DEPLOY_I = 0;
     public static final double DEPLOY_D = 0;
     public static final ClosedLoopSlot DEPLOY_SLOT = ClosedLoopSlot.kSlot0;
-    public static final double DEPLOY_RATIO = 5;
+    public static final double DEPLOY_RATIO = 5 * 3;
     public static final double DEPLOY_ROTATIONS = 2 * DEPLOY_RATIO;
 
     public static final double RETRACT_P = 1;

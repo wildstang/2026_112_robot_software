@@ -66,6 +66,16 @@ public class Intake implements Subsystem {
         }
     }
 
+    public void deployIntake() {
+        deployed = true;
+        rollerSpeed = 1;
+    }
+
+    public void removeIntake() {
+        deployed = false;
+        rollerSpeed = 0;
+    }
+
     @Override
     public void selfTest() {}
 

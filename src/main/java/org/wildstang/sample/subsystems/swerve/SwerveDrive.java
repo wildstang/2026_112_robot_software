@@ -66,7 +66,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     public SwerveDriveKinematics swerveKinematics;
 
-    public enum DriveState {LAUNCH, TELEOP, AUTO, CROSS, BUMP, SNAKE, CLIMB};
+    public enum DriveState {LAUNCH, TELEOP, AUTO, CROSS, BUMP, SNAKE, CLIMB, FEED};
     public DriveState driveState;
     private Pose2d curPose;
     private boolean shouldCross = false;
@@ -156,12 +156,9 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     @Override
     public void inputUpdate(Input source) {
-        if (source == leftStickButton && leftStickButton.getValue()) visionOverride = !visionOverride;
+        if (source == leftStickButton) visionOverride = leftStickButton.getValue();
         // reset gyro when facing away from alliance station
-        if (source == select && select.getValue()) {
-            resetGyro();
-        }
-        
+        if (source == select && select.getValue()) resetGyro();
         
         if (source == leftBumper && leftBumper.getValue()) toggleDriveState(DriveState.CROSS);
         if (source == rightBumper && rightBumper.getValue()) toggleDriveState(DriveState.SNAKE);
@@ -172,8 +169,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
         // get x and y speeds
         // joystick axes: +X is to the driver's right, +Y is away from the driver
         // field axes: +X is away from the blue alliance driver station, +Y is to the left from the blue alliance driver station perspective
-        xInput = swerveHelper.scaleDeadband(leftStickY.getValue(), DriveConstants.DEADBAND);  // joystick y value corresponds to driving forward, i.e. pushing the stick away from the driver (stick +Y) should make the robot drive away from the driver station (field +X)
-        yInput = swerveHelper.scaleDeadband(-leftStickX.getValue(), DriveConstants.DEADBAND);  // joystick x value corresponds to driving sideways in the opposite direction, i.e. pushing the stick to the drivers left (stick -X) should make the robot drive towards the 
+        xInput = swerveHelper.scaleDeadband(leftStickY.getValue(), DriveConstants.DEADBAND); // joystick y value corresponds to driving forward, i.e. pushing the stick away from the driver (stick +Y) should make the robot drive away from the driver station (field +X)
+        yInput = swerveHelper.scaleDeadband(-leftStickX.getValue(), DriveConstants.DEADBAND); // joystick x value corresponds to driving sideways in the opposite direction, i.e. pushing the stick to the drivers left (stick -X) should make the robot drive towards the 
 
         // reverse x/y directions if on red alliance to match field coordinate system
         if (!Core.isBlueAlliance()) {
@@ -187,7 +184,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         //get rotational joystick
         // joystick positive value corresponds to cw rotation
         // drivetrain positive value corresponds to ccw rotation
-        rInput = swerveHelper.scaleDeadband(-rightStickX.getValue(), DriveConstants.DEADBAND);  // negate joystick value so positive on the joystick (right) commands a negative rot speed (turn cw) and vice versa
+        rInput = swerveHelper.scaleDeadband(-rightStickX.getValue(), DriveConstants.DEADBAND); // negate joystick value so positive on the joystick (right) commands a negative rot speed (turn cw) and vice versa
 
         rInput *= Math.abs(rInput);
     }
@@ -197,6 +194,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         curPose = loc.getCurrentPose();
         double gyroAngle = MathUtil.angleModulus(curPose.getRotation().getRadians()); 
         shouldCross = false;
+        double angle;
 
         switch (driveState) {
             case AUTO:
@@ -222,7 +220,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
             case CROSS:
                 shouldCross = true;
                 break;
-            case SNAKE: // add 90 degree offset
+            case SNAKE:
                 xOutput = xInput;
                 yOutput = yInput;
                 rOutput = swerveHelper.getRotControl(MathUtil.angleModulus(Math.atan2(yInput, xInput) - Math.PI / 2), gyroAngle);
@@ -237,7 +235,13 @@ public class SwerveDrive extends SwerveDriveTemplate {
                 }
                 break;
             case CLIMB:
-                double angle = Core.isBlueAlliance() ? 0 : Math.PI;
+                angle = Core.isBlueAlliance() ? 0 : Math.PI;
+                xOutput = xInput;
+                yOutput = yInput;
+                rOutput = swerveHelper.getRotControl(angle, gyroAngle);
+                break;
+            case FEED:
+                angle = Core.isBlueAlliance() ? Math.PI : 0;
                 xOutput = xInput;
                 yOutput = yInput;
                 rOutput = swerveHelper.getRotControl(angle, gyroAngle);

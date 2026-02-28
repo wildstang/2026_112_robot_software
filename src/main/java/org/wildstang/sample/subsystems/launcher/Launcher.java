@@ -36,18 +36,31 @@ public class Launcher implements Subsystem {
     private double hoodAngleOnPress = 0;
 
     private WsSpark feed;
-    private double feedSetSpeed = 1;
-    private double feedSpeed = 0;
+    private double newFeedSpeed = 0;
 
     private Localization localization;
     private SwerveDrive drive;
 
     private WsJoystickAxis l2trigger;
-    private WsJoystickAxis r2trigger;
+    private WsJoystickAxis r2DriverTrigger;
+    private WsJoystickAxis r2OperatorTrigger;
     private WsJoystickButton bButton;
+    private WsJoystickButton driverYButton;
+    private WsJoystickButton operatorXButton;
 
-    private GenericEntry targetRpm;
-    private GenericEntry targetRad;
+    private GenericEntry targetLauncherVelocityEntry;
+    private GenericEntry targetHoodAngleEntry;
+    private GenericEntry feedingModeAngleEntry;
+    private GenericEntry feedingModeRpmEntry;
+
+    private boolean operatorMode = false;
+    private boolean resetHood = false;
+    private boolean isFeedMode = false;
+    private boolean shouldFeed = false;
+    private boolean overrideFeedInput = false;
+
+    private double feedingModeAngle = 30;
+    private double feedingModeRpm = 3400;
 
     @Override
     public void init() {
@@ -60,14 +73,22 @@ public class Launcher implements Subsystem {
 
         l2trigger = (WsJoystickAxis) WsInputs.DRIVER_LEFT_TRIGGER.get();
         l2trigger.addInputListener(this);
-        r2trigger = (WsJoystickAxis) WsInputs.DRIVER_RIGHT_TRIGGER.get();
-        r2trigger.addInputListener(this);
+        r2DriverTrigger = (WsJoystickAxis) WsInputs.DRIVER_RIGHT_TRIGGER.get();
+        r2DriverTrigger.addInputListener(this);
         bButton = (WsJoystickButton) WsInputs.DRIVER_FACE_RIGHT.get();
         bButton.addInputListener(this);
+        driverYButton = (WsJoystickButton) WsInputs.DRIVER_FACE_UP.get();
+        driverYButton.addInputListener(this);
+
+        r2OperatorTrigger = (WsJoystickAxis) WsInputs.OPERATOR_RIGHT_TRIGGER.get();
+        r2OperatorTrigger.addInputListener(this);
 
         ShuffleboardTab tab = Shuffleboard.getTab("Launcher");
-        targetRpm = tab.add("Launcher Set RPM", targetLauncherVelocity).getEntry();
-        targetRad = tab.add("Hood Set Degrees", targetHoodAngle).getEntry();
+ 
+        targetLauncherVelocityEntry = tab.add("Target Launcher Velocity", targetLauncherVelocity).getEntry();
+        targetHoodAngleEntry = tab.add("Target Hood Angle", targetHoodAngle).getEntry();
+        feedingModeAngleEntry = tab.add("Feeding Mode Angle", feedingModeAngle).getEntry();
+        feedingModeRpmEntry = tab.add("Feeding Mode RPM", feedingModeRpm).getEntry();
     }
 
     @Override
@@ -85,69 +106,90 @@ public class Launcher implements Subsystem {
     }
 
     private double calculateLauncherSpeed(double distance) {
-        //return targetLauncherVelocity;
-        return 330.7127 * distance + 710.1222;
+        if (operatorMode) {
+            return targetLauncherVelocity;
+        } else {
+            return 330.7127 * distance + 710.1222;
+        }
     }
 
     private double calculateHoodAngle(double distance) {
-        //return targetHoodAngle;
-        double curX = localization.getCurrentPose().getX();
-        if (Core.isBlueAlliance() && curX < LocalizationConstants.BLUE_HUB_X) {
-            return 0;
-        } else if (!Core.isBlueAlliance() && curX > LocalizationConstants.RED_HUB_X) {
-            return 0;
+        if (operatorMode) {
+            return targetHoodAngle;
         } else {
-            return -2.06313 * distance + 47.06313;
+            double curX = localization.getCurrentPose().getX();
+            
+            if (Core.isBlueAlliance() && curX < LocalizationConstants.BLUE_HUB_X) {
+                return 0;
+            } else if (!Core.isBlueAlliance() && curX > LocalizationConstants.RED_HUB_X) {
+                return 0;
+            } else {
+                return -2.06313 * distance + 47.06313;
+            }
         }
     }
 
     @Override
     public void update() {
         double distance = localization.getAllianceHubDistance();
-        double launcherSpeed = calculateLauncherSpeed(distance);
-        double hoodAngle = calculateHoodAngle(targetHoodAngle);
+        double hoodAngle = isFeedMode ? feedingModeAngle : calculateHoodAngle(targetHoodAngle);
+        double newLauncherSpeed = isFeedMode ? feedingModeRpm : calculateLauncherSpeed(distance);
 
-        if (runLauncher) {
-            launcherMiddle.setVelocity(launcherSpeed);
+        if (runLauncher || isFeedMode) {
+            if (newLauncherSpeed == 0) {
+                launcherMiddle.setSpeed(0);
+            } else {
+                launcherMiddle.setVelocity(newLauncherSpeed);
+            }
             preAccel.setSpeed(preAccelSetSpeed);
             setHoodRotation(hoodAngle);
-        }
-        else {
-            launcherMiddle.setVelocity(0);
+        } else {
+            launcherMiddle.setSpeed(0);
             preAccel.setSpeed(0);
         }
 
-        if (feedSpeed != 0) {
-            feed.setSpeed(feedSpeed);
+        if (launcherMiddle.getVelocity() > targetLauncherVelocity) {
+            shouldFeed = true;
+        } else if (launcherMiddle.getVelocity() < targetLauncherVelocity - 100 || targetLauncherVelocity == 0) {
+            shouldFeed = false;
         }
-        else if (launcherMiddle.getVelocity() > launcherSpeed - 100 || drive.getVisionOverride()) {
-            feed.setSpeed(feedSetSpeed);
-        }
-        else {
+
+        if (overrideFeedInput) {
+            feed.setSpeed(newFeedSpeed);
+        } else if (shouldFeed || drive.getVisionOverride()) {
+            feed.setSpeed(1);
+        } else {
             feed.setSpeed(0);
+        }
+
+        if (resetHood) {
+            // TODO, run hood to bottom then zero, stop with current spike
         }
 
         SmartDashboard.putNumber("Hub Distance (m)", distance);
         SmartDashboard.putNumber("Angle Distance (rad)", localization.getAllianceHubAngle());
-        SmartDashboard.putNumber("Target Launcher RPM", launcherSpeed);
+        SmartDashboard.putNumber("Target Launcher RPM", newLauncherSpeed);
         SmartDashboard.putNumber("Target Hood Angle (Deg)", hoodAngle);
 
-        SmartDashboard.putNumber("Feed Duty Cycle", feedSpeed);
+        SmartDashboard.putNumber("Feed Duty Cycle", newFeedSpeed);
         SmartDashboard.putBoolean("Run Launcher", runLauncher);
+        SmartDashboard.putBoolean("Is feeding", isFeedMode);
 
         SmartDashboard.putNumber("Feed Read RPM", feed.getVelocity());
         SmartDashboard.putNumber("Pre-Accel Read RPM", preAccel.getVelocity());
         SmartDashboard.putNumber("Launcher Read RPM", launcherMiddle.getVelocity());
         SmartDashboard.putNumber("Hood Position (Deg)", getHoodRotation());
 
-        targetLauncherVelocity = targetRpm.getDouble(targetLauncherVelocity);
-        targetHoodAngle = targetRad.getDouble(targetHoodAngle);
+        targetLauncherVelocity = targetLauncherVelocityEntry.getDouble(targetLauncherVelocity);
+        targetHoodAngle = targetHoodAngleEntry.getDouble(targetHoodAngle);
+        feedingModeRpm = feedingModeRpmEntry.getDouble(feedingModeRpm);
+        feedingModeAngle = feedingModeAngleEntry.getDouble(feedingModeAngle);
     }
 
     @Override
     public void inputUpdate(Input source) {
-        if (source == r2trigger) {
-            boolean hasInput = Math.abs(r2trigger.getValue()) >= 0.1;
+        if (source == r2DriverTrigger) {
+            boolean hasInput = Math.abs(r2DriverTrigger.getValue()) >= 0.1;
 
             if (hasInput && !runLauncher) {
                 runLauncher = true;
@@ -156,16 +198,15 @@ public class Launcher implements Subsystem {
                 runLauncher = false;
                 drive.setDriveState(SwerveDrive.DriveState.TELEOP);
             }
-        }
-        else if (source == l2trigger) {
+        } else if (source == l2trigger) {
             if (Math.abs(l2trigger.getValue()) >= 0.5) {
-                feedSpeed = -feedSetSpeed;
+                newFeedSpeed = -1;
+                overrideFeedInput = true;
+            } else {
+                newFeedSpeed = 0;
+                overrideFeedInput = false;
             }
-            else {
-                feedSpeed = 0;
-            }
-        }
-        else if (source == bButton) {
+        } else if (source == bButton) {
             SparkMaxConfig config = LauncherConstants.hoodConfig();
             if (bButton.getValue()) {
                 hoodAngleOnPress = getHoodRotation();
@@ -175,20 +216,39 @@ public class Launcher implements Subsystem {
                 config.idleMode(IdleMode.kBrake);
             }
             hood.configure(config);
+        } else if (source == r2OperatorTrigger) {
+            boolean hasInput = Math.abs(r2OperatorTrigger.getValue()) >= 0.1;
+
+            if (hasInput && !runLauncher) {
+                runLauncher = true;
+                operatorMode = true;
+            } else if (!hasInput && runLauncher) {
+                runLauncher = false;
+                operatorMode = false;
+            }
+
+        } else if (source == operatorXButton) { 
+            resetHood = operatorXButton.getValue(); // set resetHood to current button value
+        } else if (source == driverYButton) {
+            isFeedMode = driverYButton.getValue();
         }
 
-        if (source != r2trigger && !runLauncher) {
-
-        }
     }
 
+    public void launch() {
+        runLauncher = true;
+    }
+    
+    public void constantLaunch(boolean active) {
+        runLauncher = active;
+    }
     @Override
     public void selfTest() {
     }
 
     @Override
     public void resetState() {
-        feedSpeed = 0;
+        newFeedSpeed = 0;
         runLauncher = false;
     }
 

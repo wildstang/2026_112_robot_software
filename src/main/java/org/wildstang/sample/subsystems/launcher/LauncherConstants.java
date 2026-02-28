@@ -21,14 +21,14 @@ public class LauncherConstants {
     public static final double HOOD_D = 0;
     public static final int HOOD_LIMIT = 20;
 
-    public static final double LAUNCHER_P = 0.000359;
+    public static final double LAUNCHER_P = 0.0012;
     public static final double LAUNCHER_I = 0;
     public static final double LAUNCHER_D = 0;
     public static final double LAUNCHER_kS = 0.131;
     public static final double LAUNCHER_kV = 0.0019;
     public static final double LAUNCHER_kA = 0.00149;
     public static final int LAUNCHER_LIMIT = 60;
-    public static final int LAUNCHER_STALL_LIMIT = 40;
+    public static final int LAUNCHER_STALL_LIMIT = 60;
 
     public static final int PREACCEL_LIMIT = 40;
     public static final int FEED_LIMIT = 40;

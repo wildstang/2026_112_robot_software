@@ -11,18 +11,16 @@ import org.wildstang.framework.auto.steps.control.AutoStepStopAutonomous;
  * @author coder65535
  */
 public class Sleeper extends AutoProgram {
-
     /**
      * Defines an AutoProgram's steps, executed in order added.
      * Sleeper uses only a single step: AutoStepStopAutonomous, which
      * does nothing and never finishes.
      */
-    @Override
+     @Override
     public void defineSteps() {
         addStep(new ResetGyroStep());
         addStep(new AutoStepStopAutonomous());
     }
-
     /**
      * Returns the AutoProgram's name.
      * @return The name of the AutoProgram.

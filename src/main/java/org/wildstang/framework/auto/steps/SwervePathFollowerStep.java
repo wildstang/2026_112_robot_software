@@ -7,14 +7,19 @@ import java.util.Optional;
 
 import org.wildstang.framework.auto.AutoStep;
 import org.wildstang.framework.core.Core;
+import org.wildstang.framework.logger.Log;
 import org.wildstang.framework.subsystems.swerve.SwerveDriveTemplate;
+import org.wildstang.sample.robot.WsSubsystems;
+import org.wildstang.sample.subsystems.localization.Localization;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import choreo.*;
 import choreo.trajectory.SwerveSample;
 import choreo.trajectory.Trajectory;
@@ -23,15 +28,21 @@ import com.google.gson.Gson;
 
 public class SwervePathFollowerStep extends AutoStep {
 
-    private static final double mToIn = 39.3701;
-    private SwerveDriveTemplate m_drive;
-    private Trajectory<SwerveSample> pathtraj;
-    private SwerveSample sample;
+    private final Optional<Trajectory<SwerveSample>> pathtraj;
 
-    // x and y field relative
-    private Pose2d fieldAutoPose;
+    private Localization loc;
+
+    private SwerveDriveTemplate m_drive;
+    private SwerveSample sample;
+    private ChassisSpeeds sampleVel;
+    private Pose2d drivePose;
 
     private Timer timer;
+
+    private Boolean isBlue;
+
+    private final double endTime;
+    StructArrayPublisher<Pose2d> trajPublisher;
 
     /** Sets the robot to track a new path
      * finishes after all values have been read to robot
@@ -39,28 +50,29 @@ public class SwervePathFollowerStep extends AutoStep {
      * @param drive the swerveDrive subsystem
      */
     public SwervePathFollowerStep(String pathData, SwerveDriveTemplate drive) {
-        // this.pathtraj = getTraj(pathData);
-        // m_drive = drive;
-        // timer = new Timer();
-        var traj = Choreo.loadTrajectory(pathData).get();
-        this.pathtraj = (Trajectory<SwerveSample>)traj;
-        //this.pathtraj = getTraj(pathData).getSplit(split).get();
+        pathtraj = Choreo.loadTrajectory(pathData);
         m_drive = drive;
+        loc = (Localization) Core.getSubsystemManager().getSubsystem(WsSubsystems.LOCALIZATION);
         timer = new Timer();
+        endTime = pathtraj.get().getTotalTime();
+        isBlue = Core.isBlueAlliance();
+        trajPublisher = NetworkTableInstance.getDefault().getStructArrayTopic("Traj Pose", Pose2d.struct).publish();
+
     }
 
     /** Sets the robot to track a new path
      * finishes after all values have been read to robot
      * @param pathData double[][] that contains path, should be from \frc\paths
      * @param drive the swerveDrive subsystem
-     * @param split the index of the path split
+     * @param isFirstPath if true, resets swerveDrive gyro and pose estimator using the initial pose of the path
      */
-    public SwervePathFollowerStep(String pathData, SwerveDriveTemplate drive, int split) {
-        var traj = Choreo.loadTrajectory(pathData).get().getSplit(split).get();
-        this.pathtraj = (Trajectory<SwerveSample>)traj;
-        //this.pathtraj = getTraj(pathData).getSplit(split).get();
-        m_drive = drive;
-        timer = new Timer();
+    public SwervePathFollowerStep(String pathData, SwerveDriveTemplate drive, Boolean isFirstPath) {
+        this(pathData, drive);
+        if (isFirstPath) {
+            m_drive.setGyro(MathUtil.angleModulus(pathtraj.get().getInitialPose(!isBlue).get().getRotation().getRadians()));
+            loc.setCurrentPose(pathtraj.get().getInitialPose(!isBlue).get());
+            trajPublisher.set(pathtraj.get().getPoses());
+        }
     }
 
     @Override
@@ -68,31 +80,28 @@ public class SwervePathFollowerStep extends AutoStep {
         //start path
         m_drive.setToAuto();
         timer.start();
+        trajPublisher.set(pathtraj.get().getPoses());
     }
 
     @Override
     public void update() {
-        if (timer.get() >= pathtraj.getFinalSample(false).get().t) {
-            // TODO: m_drive.setAutoValues(0,0,0.0,0.0, pathtraj.getFinalPose(false).get());
-            SmartDashboard.putNumber("auto final time", timer.get());
+        if (timer.get() >= endTime) {
+            sample = pathtraj.get().getFinalSample(!isBlue).get();
+            drivePose = loc.getCurrentPose();
+            Log.warn("Final pose err x: " + Double.toString(sample.x - drivePose.getX()) + "y: " + Double.toString(sample.y - drivePose.getY()));
+            m_drive.setAutoValues(new ChassisSpeeds(), sample.getPose());
             setFinished();
         } else {
-            sample = pathtraj.sampleAt(timer.get(), false).get();
-            
-            fieldAutoPose = sample.getPose();
+            sample = pathtraj.get().sampleAt(timer.get(), !isBlue).get();
+            sampleVel = ChassisSpeeds.discretize(sample.getChassisSpeeds(), 0.02);
 
-            m_drive.setAutoHeading(getHeading());
-            // TODO: m_drive.setAutoValues(-1 * sample.vy * mToIn, sample.vx * mToIn,0,0, fieldAutoPose);
+            m_drive.setAutoValues(sampleVel, sample.getPose());
         }
     }
 
     @Override
     public String toString() {
         return "Swerve Path Follower";
-    }
-
-    public double getHeading(){
-        return ((-pathtraj.sampleAt(timer.get(),false).get().heading*180/Math.PI)+360)%360;
     }
 
     @SuppressWarnings("unchecked")
