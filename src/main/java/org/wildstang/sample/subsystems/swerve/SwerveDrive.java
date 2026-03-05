@@ -1,15 +1,10 @@
 package org.wildstang.sample.subsystems.swerve;
 
-import com.ctre.phoenix6.StatusCode;
-import com.ctre.phoenix6.hardware.Pigeon2;
-import com.revrobotics.spark.SparkAnalogSensor;
-import com.revrobotics.spark.SparkLimitSwitch;
-
 import org.wildstang.framework.core.Core;
-import org.wildstang.framework.io.inputs.Input;
-import org.wildstang.framework.logger.Log;
 import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.io.inputs.DigitalInput;
+import org.wildstang.framework.io.inputs.Input;
+import org.wildstang.framework.logger.Log;
 import org.wildstang.framework.subsystems.swerve.SwerveDriveTemplate;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
 import org.wildstang.sample.robot.CANConstants;
@@ -17,6 +12,9 @@ import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.localization.Localization;
+
+import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -44,9 +42,11 @@ public class SwerveDrive extends SwerveDriveTemplate {
     private AnalogInput leftStickX;  // translation joystick x
     private AnalogInput leftStickY;  // translation joystick y
     private AnalogInput rightStickX;  // rot joystick
-    private AnalogInput leftTrigger;  //speed derate 
     private DigitalInput select;  // gyro reset
-    private DigitalInput rightStickButton;
+    private DigitalInput rightStickButton; // Bump mode
+    private DigitalInput leftBumper; // Cross mode
+    private DigitalInput rightBumper; // Snake mode
+    private DigitalInput leftStickButton; // TODO: disable vision
 
     private double xOutput;
     private double yOutput;
@@ -66,9 +66,10 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     public SwerveDriveKinematics swerveKinematics;
 
-    public enum DriveState {LAUNCH, TELEOP, AUTO};
+    public enum DriveState {LAUNCH, TELEOP, AUTO, CROSS, BUMP, SNAKE, CLIMB};
     public DriveState driveState;
     private Pose2d curPose;
+    private boolean shouldCross = false;
 
     private static final double DEG_TO_RAD = Math.PI / 180.0;
     private static final double RAD_TO_DEG = 180.0 / Math.PI;
@@ -101,12 +102,17 @@ public class SwerveDrive extends SwerveDriveTemplate {
         leftStickY.addInputListener(this);
         rightStickX = (AnalogInput) Core.getInputManager().getInput(WsInputs.DRIVER_RIGHT_JOYSTICK_HORIZONTAL);
         rightStickX.addInputListener(this);
-        leftTrigger = (AnalogInput) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_TRIGGER);
-        leftTrigger.addInputListener(this);
         select = (DigitalInput) Core.getInputManager().getInput(WsInputs.DRIVER_SELECT);
         select.addInputListener(this);
         rightStickButton = (DigitalInput) Core.getInputManager().getInput(WsInputs.DRIVER_RIGHT_JOYSTICK_BUTTON);
         rightStickButton.addInputListener(this);
+        leftBumper = (DigitalInput) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_SHOULDER);
+        leftBumper.addInputListener(this);
+        rightBumper = (DigitalInput) Core.getInputManager().getInput(WsInputs.DRIVER_RIGHT_SHOULDER);
+        rightBumper.addInputListener(this);
+        leftStickButton = (DigitalInput) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_JOYSTICK_BUTTON);
+        leftStickButton.addInputListener(this);
+
     }
 
     public void initOutputs() {
@@ -139,24 +145,35 @@ public class SwerveDrive extends SwerveDriveTemplate {
         curPose = loc.getCurrentPose();
     }
 
-    @Override
-    public void inputUpdate(Input source) {
-        if (source == rightStickButton && rightStickButton.getValue()) visionOverride = !visionOverride;
-        // reset gyro when facing away from alliance station
-        if (source == select && select.getValue()) {
-            loc.setCurrentPose(Pose2d.kZero);
+    public void resetGyro() {
+        loc.setCurrentPose(Pose2d.kZero);
             if (Core.isBlueAlliance()) {
                 setGyro(0);
             } else {
                 setGyro(Math.PI);
             }
+    }
+
+    @Override
+    public void inputUpdate(Input source) {
+        if (source == leftStickButton && leftStickButton.getValue()) visionOverride = !visionOverride;
+        // reset gyro when facing away from alliance station
+        if (source == select && select.getValue()) {
+            resetGyro();
         }
+        
+        
+        if (source == leftBumper && leftBumper.getValue()) toggleDriveState(DriveState.CROSS);
+        if (source == rightBumper && rightBumper.getValue()) toggleDriveState(DriveState.SNAKE);
+        if (source == rightStickButton && rightStickButton.getValue()) toggleDriveState(DriveState.BUMP);
+
+        if (driveState == DriveState.BUMP && Math.abs(rightStickX.getValue()) > 0.1) driveState = DriveState.TELEOP;
 
         // get x and y speeds
         // joystick axes: +X is to the driver's right, +Y is away from the driver
         // field axes: +X is away from the blue alliance driver station, +Y is to the left from the blue alliance driver station perspective
         xInput = swerveHelper.scaleDeadband(leftStickY.getValue(), DriveConstants.DEADBAND);  // joystick y value corresponds to driving forward, i.e. pushing the stick away from the driver (stick +Y) should make the robot drive away from the driver station (field +X)
-        yInput = swerveHelper.scaleDeadband(-leftStickX.getValue(), DriveConstants.DEADBAND);  // joystick x value corresonds to driving sideways in the opposite direction, i.e. pushing the stick to the drivers left (stick -X) should make the robot drive towards the 
+        yInput = swerveHelper.scaleDeadband(-leftStickX.getValue(), DriveConstants.DEADBAND);  // joystick x value corresponds to driving sideways in the opposite direction, i.e. pushing the stick to the drivers left (stick -X) should make the robot drive towards the 
 
         // reverse x/y directions if on red alliance to match field coordinate system
         if (!Core.isBlueAlliance()) {
@@ -179,6 +196,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
     public void update() {
         curPose = loc.getCurrentPose();
         double gyroAngle = MathUtil.angleModulus(curPose.getRotation().getRadians()); 
+        shouldCross = false;
 
         switch (driveState) {
             case AUTO:
@@ -201,18 +219,49 @@ public class SwerveDrive extends SwerveDriveTemplate {
                     rOutput = rInput;
                 }
                 break;
+            case CROSS:
+                shouldCross = true;
+                break;
+            case SNAKE: // add 90 degree offset
+                xOutput = xInput;
+                yOutput = yInput;
+                rOutput = swerveHelper.getRotControl(MathUtil.angleModulus(Math.atan2(yInput, xInput) - Math.PI / 2), gyroAngle);
+                break;
+            case BUMP:
+                xOutput = xInput;
+                yOutput = yInput;
+                if (gyroAngle < 0) {
+                    rOutput = swerveHelper.getRotControl(-Math.PI / 2, gyroAngle);
+                } else {
+                    rOutput = swerveHelper.getRotControl(Math.PI / 2, gyroAngle);
+                }
+                break;
+            case CLIMB:
+                double angle = Core.isBlueAlliance() ? 0 : Math.PI;
+                xOutput = xInput;
+                yOutput = yInput;
+                rOutput = swerveHelper.getRotControl(angle, gyroAngle);
+                break;
         }
         
-        rOutput = Math.min(Math.max(rOutput, -1.0), 1.0);
-        xOutput = Math.min(Math.max(xOutput, -1.0), 1.0);
-        yOutput = Math.min(Math.max(yOutput, -1.0), 1.0);
-        this.swerveSignal = swerveHelper.setDrive(xOutput , yOutput, rOutput, getGyroAngle());
+        rOutput = MathUtil.clamp(rOutput, -1.0, 1.0);
+        xOutput = MathUtil.clamp(xOutput, -1.0, 1.0);
+        yOutput = MathUtil.clamp(yOutput, -1.0, 1.0);
+        this.swerveSignal = shouldCross ? swerveHelper.setCross() : swerveHelper.setDrive(xOutput , yOutput, rOutput, getGyroAngle());
         drive();
         putDashboard();
     }
 
     public void setDriveState(DriveState newState) {
         driveState = newState;
+    }
+
+    public void toggleDriveState(DriveState newState) {
+        if (newState == driveState) {
+            driveState = DriveState.TELEOP;
+        } else {
+            driveState = newState;
+        }
     }
 
     private void putDashboard() {
@@ -257,7 +306,11 @@ public class SwerveDrive extends SwerveDriveTemplate {
     /**drives the robot at the current swerveSignal, and displays information for each swerve module */
     private void drive() {
         for (int i = 0; i < modules.length; i++) {
-            modules[i].run(swerveSignal.getSpeed(i), swerveSignal.getAngle(i));
+            if (shouldCross) {
+                modules[i].runCross(swerveSignal.getSpeed(i), swerveSignal.getAngle(i));
+            } else {
+                modules[i].run(swerveSignal.getSpeed(i), swerveSignal.getAngle(i));    
+            }
             modules[i].displayNumbers(DriveConstants.POD_NAMES[i]);
         }
     }
@@ -300,6 +353,10 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     public SwerveModulePosition[] getOdoPosition(){
         return new SwerveModulePosition[]{modules[0].odoPosition(), modules[1].odoPosition(), modules[2].odoPosition(), modules[3].odoPosition()};
+    }
+
+    public boolean getVisionOverride() {
+        return visionOverride;
     }
     
     @Override

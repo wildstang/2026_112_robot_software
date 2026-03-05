@@ -1,6 +1,7 @@
 package org.wildstang.framework.auto.program;
 
 import org.wildstang.framework.auto.AutoProgram;
+import org.wildstang.framework.auto.steps.ResetGyroStep;
 import org.wildstang.framework.auto.steps.control.AutoStepStopAutonomous;
 
 /**
@@ -18,6 +19,7 @@ public class Sleeper extends AutoProgram {
      */
     @Override
     public void defineSteps() {
+        addStep(new ResetGyroStep());
         addStep(new AutoStepStopAutonomous());
     }
 

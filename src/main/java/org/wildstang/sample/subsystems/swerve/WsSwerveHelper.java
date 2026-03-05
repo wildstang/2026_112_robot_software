@@ -18,7 +18,7 @@ public class WsSwerveHelper {
      */
     public SwerveSignal setCross() {
         // TODO: determine if these angles are different for a non-square robot
-        return new SwerveSignal(new double[]{0.0, 0.0, 0.0, 0.0}, new double[]{135.0, 45.0, 45.0, 135.0});
+        return new SwerveSignal(new double[]{0.0, 0.0, 0.0, 0.0}, new double[]{Math.PI / 4, Math.PI * 3/ 4, Math.PI * 3 / 4, Math.PI / 4});
     }
 
     /**sets the robot to drive normally as a swerve

@@ -40,8 +40,8 @@ public final class DriveConstants {
     /**PID values for path tracking position error */
     public static final double POS_P = 2.0;
     /**PID values for path tracking rotation error */
-    public static final double ROT_P = 0.55;
-    public static final double ROT_D = 2.0;
+    public static final double ROT_P = 1.2;
+    public static final double ROT_D = 5;
     public static final String[] POD_NAMES = new String[]{"FL", "FR", "BL", "BR"};
     /**Deadband for deciding if drive is at position target, meters */
     public static final double POS_DB = 0.10;

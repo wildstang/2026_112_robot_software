@@ -1,10 +1,10 @@
 package org.wildstang.sample.subsystems.swerve;
 
+import org.wildstang.hardware.roborio.outputs.WsSpark;
+
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
-
-import org.wildstang.hardware.roborio.outputs.WsSpark;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -93,17 +93,18 @@ public class SwerveModule {
         }
     }
 
-    // public void runCross(double position, double angle) {
-    //     this.drivePower = position;
-    //     this.target = angle;
-    //     driveMotor.setSpeed(drivePower);
-    //     if (getDirection(angle)) {
-    //         runAtAngle(angle);
-    //     }
-    //     else {
-    //         runAtAngle(MathUtil.angleModulus(angle + Math.PI));
-    //     }
-    // }
+    public void runCross(double power, double angle) {
+        this.drivePower = power;
+        this.target = angle;
+        if (getDirection(angle)) {
+            runAtPower(power);
+            runAtAngle(angle);
+        }
+        else {
+            runAtPower(-power);
+            runAtAngle(angle + Math.PI);
+        }
+    }
 
     /**runs at specified robot centric angle 
      * @param angle angle to run the module at

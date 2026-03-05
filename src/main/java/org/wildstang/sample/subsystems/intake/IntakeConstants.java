@@ -8,7 +8,9 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class IntakeConstants {
 
-    public static final int SPIN_LIMIT = 40;
+    public static final int SPIN_LIMIT = 60;
+    public static final int SPIN_STALL_LIMIT = 40;
+
 
     public static final int DEPLOY_STALL_LIMIT = 30;
     public static final int DEPLOY_LIMIT = 60;
@@ -16,9 +18,10 @@ public class IntakeConstants {
     public static final double DEPLOY_I = 0;
     public static final double DEPLOY_D = 0;
     public static final ClosedLoopSlot DEPLOY_SLOT = ClosedLoopSlot.kSlot0;
-    public static final double DEPLOY_ROTATIONS = 2;
+    public static final double DEPLOY_RATIO = 5;
+    public static final double DEPLOY_ROTATIONS = 2 * DEPLOY_RATIO;
 
-    public static final double RETRACT_P = 4;
+    public static final double RETRACT_P = 1;
     public static final double RETRACT_I = 0;
     public static final double RETRACT_D = 0;
     public static final ClosedLoopSlot RETRACT_SLOT = ClosedLoopSlot.kSlot1;
@@ -26,7 +29,7 @@ public class IntakeConstants {
 
     public static SparkFlexConfig spinConfig() {
         SparkFlexConfig config = new SparkFlexConfig();
-        config.smartCurrentLimit(SPIN_LIMIT, SPIN_LIMIT);
+        config.smartCurrentLimit(SPIN_STALL_LIMIT, SPIN_LIMIT);
         config.idleMode(IdleMode.kBrake);
 
         return config;

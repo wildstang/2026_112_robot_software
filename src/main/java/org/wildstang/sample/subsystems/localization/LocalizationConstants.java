@@ -24,8 +24,7 @@ public class LocalizationConstants {
     // The standard deviations of our vision estimated poses, which affect correction rate
     public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(1.3, 1.3, Double.MAX_VALUE);  // TODO: tune these values
     public static final Matrix<N3, N1> kMaxStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
-
-    // temporary estimates
+    
     public static final double BLUE_HUB_X = 4.62;
     public static final double BLUE_HUB_Y = 4.04;
 

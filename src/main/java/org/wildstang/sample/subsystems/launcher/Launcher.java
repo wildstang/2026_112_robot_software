@@ -10,6 +10,7 @@ import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.localization.Localization;
+import org.wildstang.sample.subsystems.localization.LocalizationConstants;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -84,11 +85,20 @@ public class Launcher implements Subsystem {
     }
 
     private double calculateLauncherSpeed(double distance) {
-        return targetLauncherVelocity;
+        //return targetLauncherVelocity;
+        return 330.7127 * distance + 710.1222;
     }
 
     private double calculateHoodAngle(double distance) {
-        return targetHoodAngle;
+        //return targetHoodAngle;
+        double curX = localization.getCurrentPose().getX();
+        if (Core.isBlueAlliance() && curX < LocalizationConstants.BLUE_HUB_X) {
+            return 0;
+        } else if (!Core.isBlueAlliance() && curX > LocalizationConstants.RED_HUB_X) {
+            return 0;
+        } else {
+            return -2.06313 * distance + 47.06313;
+        }
     }
 
     @Override
@@ -98,13 +108,11 @@ public class Launcher implements Subsystem {
         double hoodAngle = calculateHoodAngle(targetHoodAngle);
 
         if (runLauncher) {
-            drive.setDriveState(SwerveDrive.DriveState.LAUNCH);
             launcherMiddle.setVelocity(launcherSpeed);
             preAccel.setSpeed(preAccelSetSpeed);
             setHoodRotation(hoodAngle);
         }
         else {
-            drive.setDriveState(SwerveDrive.DriveState.TELEOP);
             launcherMiddle.setVelocity(0);
             preAccel.setSpeed(0);
         }
@@ -112,7 +120,7 @@ public class Launcher implements Subsystem {
         if (feedSpeed != 0) {
             feed.setSpeed(feedSpeed);
         }
-        else if (launcherMiddle.getVelocity() > launcherSpeed - 100) {
+        else if (launcherMiddle.getVelocity() > launcherSpeed - 100 || drive.getVisionOverride()) {
             feed.setSpeed(feedSetSpeed);
         }
         else {
@@ -139,7 +147,15 @@ public class Launcher implements Subsystem {
     @Override
     public void inputUpdate(Input source) {
         if (source == r2trigger) {
-            runLauncher = Math.abs(r2trigger.getValue()) >= 0.1;
+            boolean hasInput = Math.abs(r2trigger.getValue()) >= 0.1;
+
+            if (hasInput && !runLauncher) {
+                runLauncher = true;
+                //drive.setDriveState(SwerveDrive.DriveState.LAUNCH);
+            } else if (!hasInput && runLauncher) {
+                runLauncher = false;
+                drive.setDriveState(SwerveDrive.DriveState.TELEOP);
+            }
         }
         else if (source == l2trigger) {
             if (Math.abs(l2trigger.getValue()) >= 0.5) {
@@ -159,6 +175,10 @@ public class Launcher implements Subsystem {
                 config.idleMode(IdleMode.kBrake);
             }
             hood.configure(config);
+        }
+
+        if (source != r2trigger && !runLauncher) {
+
         }
     }
 

@@ -195,8 +195,8 @@ public class Localization implements Subsystem {
             yTarget = LocalizationConstants.RED_HUB_Y;
         }
 
-        double deltaX = currentPose.getX() - xTarget;
-        double deltaY = currentPose.getY() - yTarget;
+        double deltaX = xTarget - currentPose.getX();
+        double deltaY = yTarget - currentPose.getY();
         
         Translation2d translation = new Translation2d(deltaX, deltaY);
         return translation;
@@ -215,8 +215,13 @@ public class Localization implements Subsystem {
      * @return Angle to the hub in radians.
      */
     public double getAllianceHubAngle() {
-        Rotation2d robotCentric = getAllianceHub().getAngle();
-        return currentPose.getRotation().plus(robotCentric).getRadians();
+        if (!Core.isBlueAlliance()) {
+            return getAllianceHub().getAngle().getRadians() + Math.PI;
+        } else {
+            return getAllianceHub().getAngle().getRadians();
+        }
+
+        //return currentPose.getRotation().plus(robotCentric).getRadians();
     }
 
     private Translation2d getTarget() {
@@ -239,8 +244,8 @@ public class Localization implements Subsystem {
             yTarget *= 1.5;
         }
 
-        double deltaX = currentPose.getX() - xTarget;
-        double deltaY = currentPose.getY() - yTarget;
+        double deltaX = xTarget - currentPose.getX();
+        double deltaY = yTarget - currentPose.getY();
         
         Translation2d translation = new Translation2d(deltaX, deltaY);
         return translation;
