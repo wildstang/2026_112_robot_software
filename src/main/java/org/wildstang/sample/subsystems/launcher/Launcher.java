@@ -44,12 +44,9 @@ public class Launcher implements Subsystem {
     private WsJoystickAxis l2trigger;
     private WsJoystickAxis r2trigger;
     private WsJoystickButton bButton;
-    private WsJoystickButton l1Bumper;
 
     private GenericEntry targetRpm;
     private GenericEntry targetRad;
-
-    private boolean overrideVision = false;
 
     @Override
     public void init() {
@@ -66,8 +63,6 @@ public class Launcher implements Subsystem {
         r2trigger.addInputListener(this);
         bButton = (WsJoystickButton) WsInputs.DRIVER_FACE_RIGHT.get();
         bButton.addInputListener(this);
-        l1Bumper = (WsJoystickButton) WsInputs.DRIVER_LEFT_SHOULDER.get();
-        l1Bumper.addInputListener(this);
 
         ShuffleboardTab tab = Shuffleboard.getTab("Launcher");
         targetRpm = tab.add("Launcher Set RPM", targetLauncherVelocity).getEntry();
@@ -102,19 +97,14 @@ public class Launcher implements Subsystem {
         double launcherSpeed = calculateLauncherSpeed(distance);
         double hoodAngle = calculateHoodAngle(targetHoodAngle);
 
-        if (overrideVision || !runLauncher) {
-            drive.setDriveState(SwerveDrive.DriveState.TELEOP);
-        }
-        else {
-            drive.setDriveState(SwerveDrive.DriveState.LAUNCH);
-        }
-
         if (runLauncher) {
+            drive.setDriveState(SwerveDrive.DriveState.LAUNCH);
             launcherMiddle.setVelocity(launcherSpeed);
             preAccel.setSpeed(preAccelSetSpeed);
             setHoodRotation(hoodAngle);
         }
         else {
+            drive.setDriveState(SwerveDrive.DriveState.TELEOP);
             launcherMiddle.setVelocity(0);
             preAccel.setSpeed(0);
         }
@@ -169,9 +159,6 @@ public class Launcher implements Subsystem {
                 config.idleMode(IdleMode.kBrake);
             }
             hood.configure(config);
-        }
-        else if (source == l1Bumper) {
-            overrideVision = l1Bumper.getValue();
         }
     }
 

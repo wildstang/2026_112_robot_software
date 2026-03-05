@@ -178,6 +178,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
     @Override
     public void update() {
         curPose = loc.getCurrentPose();
+        double gyroAngle = MathUtil.angleModulus(curPose.getRotation().getRadians()); 
 
         switch (driveState) {
             case AUTO:
@@ -193,7 +194,12 @@ public class SwerveDrive extends SwerveDriveTemplate {
             case LAUNCH:
                 xOutput = xInput;
                 yOutput = yInput;
-                rOutput = swerveHelper.getRotControl(MathUtil.angleModulus(loc.getTargetAngle()), MathUtil.angleModulus(curPose.getRotation().getRadians()));
+                if (!visionOverride) {
+                    rOutput = swerveHelper.getRotControl(MathUtil.angleModulus(loc.getTargetAngle()), gyroAngle);
+                }
+                else {
+                    rOutput = rInput;
+                }
                 break;
         }
         
