@@ -20,7 +20,7 @@ public class SetConstantLauncherStep extends AutoStep{
 
     @Override
     public void update() {
-        launcher.constantLaunch(active);
+        launcher.setLauncherState(active);
         setFinished();
     }
 
