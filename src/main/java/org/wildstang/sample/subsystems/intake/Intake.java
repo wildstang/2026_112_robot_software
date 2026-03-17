@@ -45,10 +45,10 @@ public class Intake implements Subsystem {
 
     @Override
     public void init() {
-        intakeDeploy = (WsSpark) WsOutputs.INTAKE_DEPLOY_LEFT.get();
+        intakeDeploy = (WsSpark) WsOutputs.INTAKE_DEPLOY.get();
         intakeDeploy.resetEncoder();
 
-        intakeRoller = (WsSpark) WsOutputs.INTAKE_SPIN.get();
+        intakeRoller = (WsSpark) WsOutputs.INTAKE_SPIN_LEFT.get();
         btnA = (WsJoystickButton) WsInputs.DRIVER_FACE_DOWN.get();
         btnA.addInputListener(this);
         btnX = (WsJoystickButton) WsInputs.DRIVER_FACE_LEFT.get();

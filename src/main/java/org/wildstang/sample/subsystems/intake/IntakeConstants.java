@@ -1,10 +1,10 @@
 package org.wildstang.sample.subsystems.intake;
 
+import org.wildstang.sample.robot.CANConstants;
+
 import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class IntakeConstants {
 
@@ -27,23 +27,31 @@ public class IntakeConstants {
     public static final ClosedLoopSlot RETRACT_SLOT = ClosedLoopSlot.kSlot1;
     public static final double RETRACT_ROTATIONS = -0.5;
 
-    public static SparkFlexConfig spinConfig() {
+    public static SparkFlexConfig leftSpinConfig() {
         SparkFlexConfig config = new SparkFlexConfig();
         config.smartCurrentLimit(SPIN_STALL_LIMIT, SPIN_LIMIT);
         config.idleMode(IdleMode.kBrake);
-
         return config;
     }
 
-    public static SparkMaxConfig leftConfig() {
-        SparkMaxConfig config = new SparkMaxConfig();
-        config.smartCurrentLimit(DEPLOY_STALL_LIMIT, DEPLOY_LIMIT);
+    public static SparkFlexConfig rightSpinConfig() {
+        SparkFlexConfig config = new SparkFlexConfig();
+        config.smartCurrentLimit(SPIN_STALL_LIMIT, SPIN_LIMIT);
+        config.follow(CANConstants.INTAKE_SPIN_RIGHT, true); // right follows left
         config.idleMode(IdleMode.kBrake);
 
-        config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
-        config.closedLoop.pid(DEPLOY_P, DEPLOY_I, DEPLOY_D, DEPLOY_SLOT);
-        config.closedLoop.pid(RETRACT_P, RETRACT_I, RETRACT_D, RETRACT_SLOT);
-
         return config;
     }
+
+    // public static SparkMaxConfig deployConfig() {
+    //     SparkMaxConfig config = new SparkMaxConfig();
+    //     config.smartCurrentLimit(DEPLOY_STALL_LIMIT, DEPLOY_LIMIT);
+    //     config.idleMode(IdleMode.kBrake);
+
+    //     config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
+    //     config.closedLoop.pid(DEPLOY_P, DEPLOY_I, DEPLOY_D, DEPLOY_SLOT);
+    //     config.closedLoop.pid(RETRACT_P, RETRACT_I, RETRACT_D, RETRACT_SLOT);
+
+    //     return config;
+    // }
 }

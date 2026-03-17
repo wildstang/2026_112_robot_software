@@ -31,9 +31,9 @@ public final class CANConstants {
     public static final int ANGLE4 = 14;
 
     // intake
-    public static final int INTAKE_DEPLOY_LEFT = 22;
-    public static final int INTAKE_SPIN = 23;
-    public static final int INTAKE_DEPLOY_RIGHT = 24;
+    public static final int INTAKE_DEPLOY = 22;
+    public static final int INTAKE_SPIN_LEFT = 23;
+    public static final int INTAKE_SPIN_RIGHT = 24;
 
     // shooter
     public static final int FEEDER = 25;
@@ -57,7 +57,8 @@ public final class CANConstants {
         Map.entry(CLIMB_LEFT, "CLIMB_LEFT"),
         Map.entry(CLIMB_RIGHT, "CLIMB_RIGHT"),
 
-        Map.entry(INTAKE_SPIN, "INTAKE_SPIN"),
+        Map.entry(INTAKE_SPIN_LEFT, "INTAKE_SPIN_LEFT"),
+        Map.entry(INTAKE_SPIN_RIGHT, "INTAKE_SPIN_RIGHT"),
 
         Map.entry(FEEDER, "FEEDER"),
         Map.entry(PREACCEL, "PREACCEL"),
