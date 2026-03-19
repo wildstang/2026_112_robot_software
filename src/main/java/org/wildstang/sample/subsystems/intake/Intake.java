@@ -15,14 +15,33 @@ public class Intake implements Subsystem {
     private WsSpark intakeDeploy;
     private WsSpark intakeRoller;
     private WsJoystickButton btnA;
-    private WsJoystickButton btnY;
     private WsJoystickButton btnX;
-    private boolean deployed = false;
-    private double rollerSpeed;
-    private Timer intakeRetractTimer = new Timer();
-    private boolean wasDeployed = false;
-    private double iterations = 0;
+    private final Timer intakeRetractTimer = new Timer();
 
+    private enum RollerState {
+        FORWARD(1),
+        IDLE(0.5), // half speed
+        OFF(0),
+        REVERSE(-1);
+
+        private final double speed;
+
+        private RollerState(double speed) {
+            this.speed = speed;
+        } 
+
+        private double getSpeed() {
+            return this.speed;
+        }
+    }
+
+    private enum IntakeState {
+        DEPLOYED,
+        RETRACTED,
+    }
+
+    private RollerState rollerState = RollerState.OFF;
+    private IntakeState intakeState = IntakeState.RETRACTED;
 
     @Override
     public void init() {
@@ -41,64 +60,74 @@ public class Intake implements Subsystem {
 
     @Override
     public void update() {
-         if (deployed){
+         if (intakeState == IntakeState.DEPLOYED){
             intakeDeploy.setPosition(IntakeConstants.DEPLOY_ROTATIONS, 0);
         } else  {
             intakeDeploy.setPosition(IntakeConstants.RETRACT_ROTATIONS, 1);
         }
         
-        if (wasDeployed && !deployed) {
-            intakeRetractTimer.restart();
-        } else if (intakeRetractTimer.isRunning()) {
-            if (intakeRetractTimer.hasElapsed(0.75)) {
-                rollerSpeed = 0;
+        if (intakeRetractTimer.isRunning()) { // if timer running
+            // stop timer if past n seconds
+            if (intakeRetractTimer.hasElapsed(0.75)) { 
+                rollerState = RollerState.OFF;
                 intakeRetractTimer.stop();
             } else {
-                rollerSpeed = 1;
+                // power rollers for n seconds after retract
+                rollerState = RollerState.FORWARD; 
             }
+        } else if (intakeState == IntakeState.DEPLOYED) { 
+            // Roll rollers while deployed, unless overridden
+            if (rollerState != RollerState.REVERSE) rollerState = RollerState.FORWARD;
         } else {
-            intakeRetractTimer.stop();
+            // Don't run rollers when retracted
+            if (rollerState != RollerState.REVERSE) rollerState = RollerState.OFF;
         }
-        
-        if (deployed && !btnA.getValue()) rollerSpeed = 0.5;
 
-        intakeRoller.setSpeed(rollerSpeed);
+        intakeRoller.setSpeed(rollerState.getSpeed());
 
-        SmartDashboard.putBoolean("Deploy Intake", deployed);
-        SmartDashboard.putNumber("Intake Set Speed", rollerSpeed);
+        SmartDashboard.putBoolean("Deploy Intake", intakeState == IntakeState.DEPLOYED);
+        SmartDashboard.putNumber("Intake Set Speed", rollerState.getSpeed());
         
         SmartDashboard.putNumber("Intake Position (Rot)", intakeDeploy.getPosition());
         SmartDashboard.putNumber("Intake Speed (RPM)", intakeRoller.getVelocity());
-        wasDeployed = deployed;
     }
 
     @Override
     public void inputUpdate(Input source) {
         if (source == btnX) {
-            if(btnX.getValue()) {
-                deployed = !deployed;
+            if (btnX.getValue()) {
+                if (intakeState == IntakeState.DEPLOYED) {
+                    intakeState = IntakeState.RETRACTED;
+                    intakeRetractTimer.restart();
+                } else {
+                    intakeState = IntakeState.DEPLOYED;
+                }
             }
         }
-        if(source == btnA) {
+        if (source == btnA) {
             if (btnA.getValue()) {
-                rollerSpeed = 1;
-                deployed = true;
+                rollerState = RollerState.REVERSE;
+            } else {
+                if (intakeState == IntakeState.DEPLOYED) {
+                    rollerState = RollerState.FORWARD;
+                } else {
+                    rollerState = RollerState.OFF;
+                }
             }
         }
     }
 
     public void deployIntake() {
-        deployed = true;
-        rollerSpeed = 1;
+        intakeState = IntakeState.DEPLOYED;
     }
 
     public void removeIntake() {
-        deployed = false;
-        rollerSpeed = 0;
+        intakeState = IntakeState.RETRACTED;
+        intakeRetractTimer.restart();
     }
 
     public boolean isDeployed() {
-        return deployed;
+        return intakeState == IntakeState.DEPLOYED;
     }
 
     @Override
