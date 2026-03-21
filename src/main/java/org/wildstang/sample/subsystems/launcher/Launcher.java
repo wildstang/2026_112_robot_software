@@ -52,6 +52,7 @@ public class Launcher implements Subsystem {
     private GenericEntry targetHoodAngleEntry;
     private GenericEntry feedingModeAngleEntry;
     private GenericEntry feedingModeRpmEntry;
+    private GenericEntry visionOverrideLauncherSpeedEntry;
 
     private boolean operatorMode = false;
     private boolean resetHood = false;
@@ -61,6 +62,7 @@ public class Launcher implements Subsystem {
 
     private double feedingModeAngle = 30;
     private double feedingModeRpm = 3400;
+    private double visionOverrideLauncherSpeed = 1850;
 
     
     private enum LauncherState {
@@ -100,6 +102,9 @@ public class Launcher implements Subsystem {
 
         operatorRightTrigger = (WsJoystickAxis) WsInputs.OPERATOR_RIGHT_TRIGGER.get();
         operatorRightTrigger.addInputListener(this);
+        operatorXButton = (WsJoystickButton) WsInputs.OPERATOR_FACE_LEFT.get();
+        operatorXButton.addInputListener(this);
+
 
         ShuffleboardTab tab = Shuffleboard.getTab("Launcher");
  
@@ -107,6 +112,8 @@ public class Launcher implements Subsystem {
         targetHoodAngleEntry = tab.add("Target Hood Angle", targetHoodAngle).getEntry();
         feedingModeAngleEntry = tab.add("Feeding Mode Angle", feedingModeAngle).getEntry();
         feedingModeRpmEntry = tab.add("Feeding Mode RPM", feedingModeRpm).getEntry();
+        visionOverrideLauncherSpeedEntry = tab.add("Vision Override Launcher Speed", visionOverrideLauncherSpeed).getEntry();
+
     }
 
     @Override
@@ -155,7 +162,7 @@ public class Launcher implements Subsystem {
 
         // Override button
         if (isVisionOverride) {
-            newLauncherSpeed = 1850;
+            newLauncherSpeed = visionOverrideLauncherSpeed;
             newHoodAngle = 0;
             launcherState = LauncherState.FORWARD;
         } else if (!isVisionOverride && wasVisionOverride) {
@@ -165,7 +172,7 @@ public class Launcher implements Subsystem {
         // Launcher state
         switch (launcherState) {
             case FORWARD:
-                if (newLauncherSpeed == 0) {
+                if (newLauncherSpeed <= 15) {
                     launcherMiddle.setSpeed(0); // prevent jitter from PID loop at 0 rpm
                 } else {
                     launcherMiddle.setVelocity(newLauncherSpeed);
@@ -236,6 +243,7 @@ public class Launcher implements Subsystem {
         targetHoodAngle = targetHoodAngleEntry.getDouble(targetHoodAngle);
         feedingModeRpm = feedingModeRpmEntry.getDouble(feedingModeRpm);
         feedingModeAngle = feedingModeAngleEntry.getDouble(feedingModeAngle);
+        visionOverrideLauncherSpeed = visionOverrideLauncherSpeedEntry.getDouble(visionOverrideLauncherSpeed);
 
         wasVisionOverride = isVisionOverride;
     }
