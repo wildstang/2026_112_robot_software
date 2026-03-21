@@ -13,10 +13,10 @@ import edu.wpi.first.math.numbers.N3;
 public class LocalizationConstants {
     public static final String kLeftCam = "LeftCam";
     public static final String kRightCam = "RightCam";
-    public static final Transform3d kBotToLeftCam = new Transform3d(new Translation3d(-0.336, 0.124, 0.733),
-                                                                      new Rotation3d(0, 0, -0.349));
-    public static final Transform3d kBotToRightCam = new Transform3d(new Translation3d(-0.336, -0.124, 0.733),
-                                                                       new Rotation3d(0, 0, 0.349));
+    public static final Transform3d kRobotToLeftCam =
+                new Transform3d(new Translation3d(-0.282, 0.215, 0.744), new Rotation3d(0, -0.209, -0.175));
+    public static final Transform3d kRobotToRightCam =
+                new Transform3d(new Translation3d(-0.282, -0.215, 0.744), new Rotation3d(0, -0.209, 0.175));
 
     // The layout of the AprilTags on the field
     public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);

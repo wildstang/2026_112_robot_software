@@ -56,13 +56,13 @@ public class Localization implements Subsystem {
         bestPosePublisher = NetworkTableInstance.getDefault().getStructTopic("Best Pose Target", Pose2d.struct).publish();
 
         leftCam = new PhotonCamera(LocalizationConstants.kLeftCam);
-        leftEstimator = new PhotonPoseEstimator(LocalizationConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, LocalizationConstants.kBotToLeftCam);
+        leftEstimator = new PhotonPoseEstimator(LocalizationConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, LocalizationConstants.kRobotToLeftCam);
         leftEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
         leftCamPublisher = NetworkTableInstance.getDefault().getStructTopic("Left Cam Pose Estimator", Pose2d.struct).publish();
         leftVisTargetPublisher = NetworkTableInstance.getDefault().getStructArrayTopic("Left Vision Targets", Pose2d.struct).publish();
 
         rightCam = new PhotonCamera(LocalizationConstants.kRightCam);
-        rightEstimator = new PhotonPoseEstimator(LocalizationConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, LocalizationConstants.kBotToRightCam);
+        rightEstimator = new PhotonPoseEstimator(LocalizationConstants.kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, LocalizationConstants.kRobotToRightCam);
         rightEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
         rightCamPublisher = NetworkTableInstance.getDefault().getStructTopic("Right Cam Pose Estimator", Pose2d.struct).publish();
         rightVisTargetPublisher = NetworkTableInstance.getDefault().getStructArrayTopic("Right Vision Targets", Pose2d.struct).publish();
