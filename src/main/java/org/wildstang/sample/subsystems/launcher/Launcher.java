@@ -76,7 +76,8 @@ public class Launcher implements Subsystem {
         FORWARD,
         IDLE,
         REVERSE,
-        OVERRIDE,
+        OVERRIDE, // override button
+        AUTO, // when holding down launcher
     }
     
     private LauncherState launcherState = LauncherState.IDLE;
@@ -165,15 +166,17 @@ public class Launcher implements Subsystem {
             newLauncherSpeed = visionOverrideLauncherSpeed;
             newHoodAngle = 0;
             launcherState = LauncherState.FORWARD;
+            feedState = FeedState.AUTO;
         } else if (!isVisionOverride && wasVisionOverride) {
             launcherState = LauncherState.IDLE;
+            feedState = FeedState.IDLE;
         }
 
         // Launcher state
         switch (launcherState) {
             case FORWARD:
                 if (newLauncherSpeed <= 15) {
-                    launcherMiddle.setSpeed(0); // prevent jitter from PID loop at 0 rpm
+                    launcherMiddle.setSpeed(0); // prevent jitter from PID loop at ~0 rpm
                 } else {
                     launcherMiddle.setVelocity(newLauncherSpeed);
                 }
@@ -194,16 +197,6 @@ public class Launcher implements Subsystem {
                 break;
         }
 
-        // Feed enable/disable logic
-        //      deadband for feed enabling
-        if (feedState != FeedState.REVERSE && feedState != FeedState.OVERRIDE) {
-            if (launcherMiddle.getVelocity() > newLauncherSpeed + 50) {
-                feedState = FeedState.FORWARD;
-            } else if (launcherMiddle.getVelocity() < newLauncherSpeed - 100 || newLauncherSpeed == 0) {
-                feedState = FeedState.IDLE;
-            }
-        }
-
         // Feed State 
         switch (feedState) {
             case FORWARD:
@@ -217,6 +210,13 @@ public class Launcher implements Subsystem {
                 break;
             case OVERRIDE:
                 //feed.setSpeed()
+                break;
+            case AUTO:
+                if (launcherMiddle.getVelocity() > newLauncherSpeed + 50) {
+                    feed.setSpeed(1);
+                } else if (launcherMiddle.getVelocity() < newLauncherSpeed - 100 || newLauncherSpeed == 0) {
+                    feed.setSpeed(0);
+                }
                 break;
         }
 
@@ -255,14 +255,20 @@ public class Launcher implements Subsystem {
 
             if (hasInput && launcherState != LauncherState.FORWARD) {
                 launcherState = LauncherState.FORWARD;
+                feedState = FeedState.AUTO;
             } else if (!hasInput && launcherState == LauncherState.FORWARD) {
                 launcherState = LauncherState.IDLE;
+                feedState = FeedState.IDLE;
             }
         } else if (source == driverLeftTrigger) {
             if (Math.abs(driverLeftTrigger.getValue()) >= 0.5) {
                 feedState = FeedState.REVERSE;
             } else {
-                feedState = FeedState.IDLE;
+                if (launcherState != LauncherState.IDLE) {
+                    feedState = FeedState.AUTO;
+                } else {
+                    feedState = FeedState.IDLE;
+                }
             }
         } else if (source == driverBButton) {
             SparkMaxConfig config = LauncherConstants.hoodConfig();
@@ -279,9 +285,11 @@ public class Launcher implements Subsystem {
 
             if (hasInput && launcherState != LauncherState.FORWARD) {
                 launcherState = LauncherState.FORWARD;
+                feedState = FeedState.AUTO;
                 operatorMode = true;
             } else if (!hasInput && launcherState == LauncherState.FORWARD) {
                 launcherState = LauncherState.IDLE;
+                feedState = FeedState.IDLE;
                 operatorMode = false;
             }
 
@@ -290,9 +298,11 @@ public class Launcher implements Subsystem {
         } else if (source == driverYButton) {
             if (driverYButton.getValue()) {
                 launcherState = LauncherState.FORWARD;
+                feedState = FeedState.AUTO;
                 feedMode = true;
             } else {
                 launcherState = LauncherState.IDLE;
+                feedState = FeedState.IDLE;
                 feedMode = false;
             }
 
@@ -302,17 +312,21 @@ public class Launcher implements Subsystem {
 
     public void startLaunch() {
         launcherState = LauncherState.FORWARD;
+        feedState = FeedState.AUTO;
     }
     
     public void stopLaunch() {
         launcherState = LauncherState.IDLE;
+        feedState = FeedState.IDLE;
     }
 
     public void setLauncherState(boolean bool) {
         if (bool) {
             launcherState = LauncherState.FORWARD;
+            feedState = FeedState.AUTO;
         } else {
             launcherState = LauncherState.IDLE;
+            feedState = FeedState.IDLE;
         }
     }
 
