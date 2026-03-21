@@ -54,9 +54,6 @@ public final class CANConstants {
         Map.entry(DRIVE4, "DRIVE4"),
         Map.entry(ANGLE4, "ANGLE4"),
         
-        Map.entry(CLIMB_LEFT, "CLIMB_LEFT"),
-        Map.entry(CLIMB_RIGHT, "CLIMB_RIGHT"),
-
         Map.entry(INTAKE_SPIN_LEFT, "INTAKE_SPIN_LEFT"),
         Map.entry(INTAKE_SPIN_RIGHT, "INTAKE_SPIN_RIGHT"),
 

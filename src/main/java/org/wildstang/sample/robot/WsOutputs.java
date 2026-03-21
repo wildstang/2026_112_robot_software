@@ -35,9 +35,6 @@ public enum WsOutputs implements Outputs {
     // Other Motors
     // ---------------------------------
 
-    CLIMB_LEFT("Left Climb Motor", new WsSparkConfig(CANConstants.CLIMB_LEFT, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
-    CLIMB_RIGHT("Right Climb Motor", new WsSparkConfig(CANConstants.CLIMB_RIGHT, WsMotorControllers.SPARK_FLEX_BRUSHLESS)),
-    
     INTAKE_DEPLOY("Intake Deploy Motor", new WsTalonConfig(CANConstants.INTAKE_DEPLOY, WsMotorControllers.TALON_FX)),
     INTAKE_SPIN_LEFT("Left Intake Spin Motor", new WsSparkConfig(CANConstants.INTAKE_SPIN_LEFT, WsMotorControllers.SPARK_FLEX_BRUSHLESS, IntakeConstants.leftSpinConfig())),
     INTAKE_SPIN_RIGHT("Right Intake Spin Motor", new WsSparkConfig(CANConstants.INTAKE_SPIN_RIGHT, WsMotorControllers.SPARK_FLEX_BRUSHLESS, IntakeConstants.rightSpinConfig())),
