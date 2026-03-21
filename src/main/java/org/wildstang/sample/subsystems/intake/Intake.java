@@ -4,6 +4,7 @@ import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
 import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
+import org.wildstang.hardware.roborio.outputs.WsTalon;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 
@@ -12,7 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Intake implements Subsystem {
 
-    private WsSpark intakeDeploy;
+    private WsTalon intakeDeploy;
     private WsSpark intakeRoller;
     private WsJoystickButton btnA;
     private WsJoystickButton btnX;
@@ -45,8 +46,10 @@ public class Intake implements Subsystem {
 
     @Override
     public void init() {
-        intakeDeploy = (WsSpark) WsOutputs.INTAKE_DEPLOY.get();
+        intakeDeploy = (WsTalon) WsOutputs.INTAKE_DEPLOY.get();
         intakeDeploy.resetEncoder();
+        intakeDeploy.initClosedLoop(IntakeConstants.DEPLOY_P, IntakeConstants.DEPLOY_I, IntakeConstants.DEPLOY_D);   // Slot 0
+        intakeDeploy.addClosedLoop(IntakeConstants.RETRACT_P, IntakeConstants.RETRACT_I, IntakeConstants.RETRACT_D);  // Slot 1
 
         intakeRoller = (WsSpark) WsOutputs.INTAKE_SPIN_LEFT.get();
         btnA = (WsJoystickButton) WsInputs.DRIVER_FACE_DOWN.get();

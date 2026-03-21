@@ -8,25 +8,24 @@ import org.wildstang.framework.io.outputs.Output;
 import org.wildstang.hardware.roborio.outputs.WsDigitalOutput;
 import org.wildstang.hardware.roborio.outputs.WsDoubleSolenoid;
 import org.wildstang.hardware.roborio.outputs.WsI2COutput;
-// import org.wildstang.hardware.roborio.outputs.WsPhoenix;
 import org.wildstang.hardware.roborio.outputs.WsRelay;
+import org.wildstang.hardware.roborio.outputs.WsRemoteAnalogOutput;
+import org.wildstang.hardware.roborio.outputs.WsRemoteDigitalOutput;
 import org.wildstang.hardware.roborio.outputs.WsServo;
 import org.wildstang.hardware.roborio.outputs.WsSolenoid;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
 import org.wildstang.hardware.roborio.outputs.WsTalon;
-import org.wildstang.hardware.roborio.outputs.WsRemoteAnalogOutput;
-import org.wildstang.hardware.roborio.outputs.WsRemoteDigitalOutput;
 import org.wildstang.hardware.roborio.outputs.config.WsDigitalOutputConfig;
 import org.wildstang.hardware.roborio.outputs.config.WsDoubleSolenoidConfig;
 import org.wildstang.hardware.roborio.outputs.config.WsI2COutputConfig;
-import org.wildstang.hardware.roborio.outputs.config.WsTalonConfig;
-import org.wildstang.hardware.roborio.outputs.config.WsTalonFollowerConfig;
 import org.wildstang.hardware.roborio.outputs.config.WsRelayConfig;
+import org.wildstang.hardware.roborio.outputs.config.WsRemoteAnalogOutputConfig;
+import org.wildstang.hardware.roborio.outputs.config.WsRemoteDigitalOutputConfig;
 import org.wildstang.hardware.roborio.outputs.config.WsServoConfig;
 import org.wildstang.hardware.roborio.outputs.config.WsSolenoidConfig;
 import org.wildstang.hardware.roborio.outputs.config.WsSparkConfig;
-import org.wildstang.hardware.roborio.outputs.config.WsRemoteAnalogOutputConfig;
-import org.wildstang.hardware.roborio.outputs.config.WsRemoteDigitalOutputConfig;
+import org.wildstang.hardware.roborio.outputs.config.WsTalonConfig;
+import org.wildstang.hardware.roborio.outputs.config.WsTalonFollowerConfig;
 
 /**
  * Builds outputs from WsOutputs enumerations.
@@ -68,7 +67,8 @@ public class RoboRIOOutputFactory implements OutputFactory {
         }
         else if (config instanceof WsTalonConfig) {
             WsTalonConfig c = (WsTalonConfig) config;
-            out = new WsTalon(p_output.getName(), c.getChannel());
+            out = new WsTalon(p_output.getName(), c.getChannel(), c.getDefault(),
+                                c.getType());
         }
         //Note a WsTalonFollower must be defined after its corresponding WsPhoenix
         else if (config instanceof WsTalonFollowerConfig) {
@@ -76,7 +76,7 @@ public class RoboRIOOutputFactory implements OutputFactory {
             // Returns the followed WsPhoenix because a return is required
             // and duplicate outputs are thrown out when encountered.
             out = Core.getOutputManager().getOutput(c.getFollowing());
-            ((WsTalon) out).addFollower(c.getChannel(), c.isOpposing());
+            ((WsTalon) out).addFollower(c.getChannel(), c.getType(), c.isOpposing());
         }
         else if (config instanceof WsSparkConfig) {
             WsSparkConfig c = (WsSparkConfig) config;

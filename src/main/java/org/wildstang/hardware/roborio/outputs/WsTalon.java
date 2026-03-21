@@ -1,5 +1,7 @@
 package org.wildstang.hardware.roborio.outputs;
 
+import org.wildstang.hardware.roborio.outputs.config.WsMotorControllers;
+
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -9,9 +11,10 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
+import com.ctre.phoenix6.controls.VelocityDutyCycle;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 
 /**
@@ -29,10 +32,13 @@ public class WsTalon extends WsMotorController {
     private TalonFX follower;
     private TalonFXConfigurator followerApply;
 
-    private enum RequestType {PERCENT_OUTPUT, POSITION}
+    private enum RequestType {PERCENT_OUTPUT, POSITION, VELOCITY}
     private RequestType currentRequest = RequestType.PERCENT_OUTPUT;
     private DutyCycleOut percentRequest = new DutyCycleOut(0.0);
     private PositionDutyCycle positionRequest = new PositionDutyCycle(0.0);
+    private VelocityDutyCycle velocityRequest = new VelocityDutyCycle(0.0);
+    
+    private WsMotorControllers motorControllerType;
     private boolean followerExists = false;
 
     /**
@@ -41,9 +47,10 @@ public class WsTalon extends WsMotorController {
      * @param channel Motor controller CAN constant.
      * @param p_default Default output value.
      */
-    public WsTalon(String name, int channel) {
-        super(name);
-        motor = new TalonFX(channel, "mechanism_canivore");
+    public WsTalon(String name, int channel,  double p_default, WsMotorControllers controller) {
+        super(name, p_default);
+        motor = new TalonFX(channel);
+        motorControllerType = controller;
         motorApply = motor.getConfigurator();
         //percentRequest.withEnableFOC(true);
     }
@@ -54,8 +61,8 @@ public class WsTalon extends WsMotorController {
      * @param CANBUS Attached CAN bus name.
      * @param oppose True if the follow should oppose the direction of this motor.
      */
-    public void addFollower(int canConstant, boolean oppose) {
-        follower = new TalonFX(canConstant, "mechanism_canivore");
+    public void addFollower(int canConstant, WsMotorControllers controller, boolean oppose) {
+        follower = new TalonFX(canConstant);
         followerApply = follower.getConfigurator();
         followerExists = true;
         MotorAlignmentValue alignment = oppose ? MotorAlignmentValue.Opposed : MotorAlignmentValue.Aligned;
@@ -131,12 +138,25 @@ public class WsTalon extends WsMotorController {
         return motor.getPosition().getValueAsDouble();
     }
 
+    public void resetEncoder() {
+        motor.setPosition(0);
+    }
+
     public double getOutput(){
         return motor.getDutyCycle().getValueAsDouble();
     }
 
     public double getTemperature(){
         return motor.getDeviceTemp().getValueAsDouble();
+    }
+    public double getCurrent(){
+        return motor.getStatorCurrent().getValueAsDouble();
+    }
+    public double getClosedLoopOutput(){
+        return motor.getClosedLoopOutput().getValueAsDouble();
+    }
+    public double getTorqueCurrent(){
+        return motor.getTorqueCurrent().getValueAsDouble();
     }
 
     /**
@@ -148,6 +168,8 @@ public class WsTalon extends WsMotorController {
             motor.setControl(percentRequest);
         } else if (currentRequest == RequestType.POSITION){
             motor.setControl(positionRequest);
+        } else if (currentRequest == RequestType.VELOCITY){
+            motor.setControl(velocityRequest);
         }
         if (followerExists) follower.setControl(follow);
     }
@@ -168,11 +190,21 @@ public class WsTalon extends WsMotorController {
         slot0.kP = P;
         slot0.kI = I;
         slot0.kD = D;
-        motorApply.apply(slot0);
+        config.withSlot0(slot0);
+        applyConfigs();
     }
-
+    public void initClosedLoop(double P, double I, double D, double S, double V){
+        Slot0Configs slot0 = new Slot0Configs();
+        slot0.kP = P;
+        slot0.kI = I;
+        slot0.kD = D;
+        slot0.kS = S;
+        slot0.kV = V;
+        config.withSlot0(slot0);
+        applyConfigs();
+    }
     /*
-     * Adds a closed loop control slot for the sparkmax
+     * Adds a closed loop control slot for the talon
      * @param slotID the slot number of the constants, 0 is default, either 1-3 otherwise
      * @param PIDFF the constants values
      */
@@ -181,7 +213,18 @@ public class WsTalon extends WsMotorController {
         slotNew.kP = P;
         slotNew.kI = I;
         slotNew.kD = D;
-        motorApply.apply(slotNew);
+        config.withSlot1(slotNew);
+        applyConfigs();
+    }
+    public void addClosedLoop(double P, double I, double D, double S, double V){
+        Slot1Configs slotNew = new Slot1Configs();
+        slotNew.kP = P;
+        slotNew.kI = I;
+        slotNew.kD = D;
+        slotNew.kS = S;
+        slotNew.kV = V;
+        config.withSlot1(slotNew);
+        applyConfigs();
     }
 
     /**
@@ -189,8 +232,12 @@ public class WsTalon extends WsMotorController {
      * @param target the encoder target value to track to
      */
     public void setPosition(double target){
-        positionRequest.withPosition(target);
+        positionRequest.withPosition(target).withSlot(0);
         currentRequest = RequestType.POSITION;
+    }
+
+    public double getClosedLoopError(){
+        return motor.getClosedLoopError().getValueAsDouble();
     }
 
     /**
@@ -199,9 +246,18 @@ public class WsTalon extends WsMotorController {
      * @param slotID the ID slot of the sparkmax to use
      */
     public void setPosition(double target, int slotID){
-        positionRequest.withSlot(slotID);
-        positionRequest.withPosition(target);
+        positionRequest.withPosition(target).withSlot(slotID);
         currentRequest = RequestType.POSITION;
+    }
+
+    public void setVelocity(double target){
+        velocityRequest.withVelocity(target);
+        currentRequest = RequestType.VELOCITY;
+    }
+    public void setVelocity(double target, int slotID){
+        velocityRequest.withSlot(slotID);
+        velocityRequest.withVelocity(target);
+        currentRequest = RequestType.VELOCITY;
     }
 
 
