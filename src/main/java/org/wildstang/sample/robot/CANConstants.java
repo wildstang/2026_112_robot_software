@@ -30,10 +30,6 @@ public final class CANConstants {
     public static final int DRIVE4 = 13; // BR
     public static final int ANGLE4 = 14;
 
-    // climb
-    public static final int CLIMB_LEFT = 20;
-    public static final int CLIMB_RIGHT = 21;
-
     // intake
     public static final int INTAKE_DEPLOY_LEFT = 22;
     public static final int INTAKE_SPIN = 23;
