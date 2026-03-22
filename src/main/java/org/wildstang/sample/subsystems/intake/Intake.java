@@ -8,7 +8,10 @@ import org.wildstang.hardware.roborio.outputs.WsTalon;
 import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Intake implements Subsystem {
@@ -19,21 +22,13 @@ public class Intake implements Subsystem {
     private WsJoystickButton btnX;
     private final Timer intakeRetractTimer = new Timer();
 
+    private double targetRollerForwardVelocity = 4000;
+    private GenericEntry targetRollerForwardVelocityEntry;
+
     private enum RollerState {
-        FORWARD(1),
-        IDLE(0.5), // half speed
-        OFF(0),
-        REVERSE(-1);
-
-        private final double speed;
-
-        private RollerState(double speed) {
-            this.speed = speed;
-        } 
-
-        private double getSpeed() {
-            return this.speed;
-        }
+        FORWARD,
+        OFF,
+        REVERSE
     }
 
     private enum IntakeState {
@@ -52,6 +47,7 @@ public class Intake implements Subsystem {
         intakeDeploy.addClosedLoop(IntakeConstants.RETRACT_P, IntakeConstants.RETRACT_I, IntakeConstants.RETRACT_D);  // Slot 1
 
         intakeRoller = (WsSpark) WsOutputs.INTAKE_SPIN_LEFT.get();
+
         btnA = (WsJoystickButton) WsInputs.DRIVER_FACE_DOWN.get();
         btnA.addInputListener(this);
         btnX = (WsJoystickButton) WsInputs.DRIVER_FACE_LEFT.get();
@@ -59,6 +55,10 @@ public class Intake implements Subsystem {
 
         intakeRetractTimer.stop();
         intakeRetractTimer.reset();
+
+        ShuffleboardTab tab = Shuffleboard.getTab("Intake");
+
+        targetRollerForwardVelocityEntry = tab.add("Target Intake Roller Forward Velocity", targetRollerForwardVelocity).getEntry();
     }
 
     @Override
@@ -86,13 +86,25 @@ public class Intake implements Subsystem {
             if (rollerState != RollerState.REVERSE) rollerState = RollerState.OFF;
         }
 
-        intakeRoller.setSpeed(rollerState.getSpeed());
+        switch (rollerState) {
+            case FORWARD:
+                intakeRoller.setVelocity(targetRollerForwardVelocity);
+                break;
+            case OFF:
+                intakeRoller.setSpeed(0);
+                break;
+            case REVERSE:
+                intakeRoller.setSpeed(-1);
+                break;
+        }
 
         SmartDashboard.putBoolean("Deploy Intake", intakeState == IntakeState.DEPLOYED);
-        SmartDashboard.putNumber("Intake Set Speed", rollerState.getSpeed());
+        SmartDashboard.putNumber("Intake Output Percent", intakeRoller.getOutput());
         
         SmartDashboard.putNumber("Intake Position (Rot)", intakeDeploy.getPosition());
         SmartDashboard.putNumber("Intake Speed (RPM)", intakeRoller.getVelocity());
+
+        targetRollerForwardVelocity = targetRollerForwardVelocityEntry.getDouble(targetRollerForwardVelocity);
     }
 
     @Override

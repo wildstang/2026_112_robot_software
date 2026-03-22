@@ -32,8 +32,8 @@ public final class CANConstants {
 
     // intake
     public static final int INTAKE_DEPLOY = 22;
-    public static final int INTAKE_SPIN_LEFT = 23;
-    public static final int INTAKE_SPIN_RIGHT = 24;
+    public static final int INTAKE_SPIN_RIGHT = 23;
+    public static final int INTAKE_SPIN_LEFT = 24;
 
     // shooter
     public static final int FEEDER = 25;
