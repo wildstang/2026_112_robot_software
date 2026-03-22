@@ -66,7 +66,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     public SwerveDriveKinematics swerveKinematics;
 
-    public enum DriveState {LAUNCH, TELEOP, AUTO, CROSS, BUMP, SNAKE, CLIMB, FEED};
+    public enum DriveState {LAUNCH, TELEOP, AUTO, CROSS, BUMP, SNAKE, FEED};
     public DriveState driveState;
     private Pose2d curPose;
     private boolean shouldCross = false;
@@ -233,12 +233,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
                 } else {
                     rOutput = swerveHelper.getRotControl(Math.PI / 2, gyroAngle);
                 }
-                break;
-            case CLIMB:
-                angle = Core.isBlueAlliance() ? 0 : Math.PI;
-                xOutput = xInput;
-                yOutput = yInput;
-                rOutput = swerveHelper.getRotControl(angle, gyroAngle);
                 break;
             case FEED:
                 angle = Core.isBlueAlliance() ? Math.PI : 0;
