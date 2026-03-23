@@ -24,11 +24,11 @@ public class IntakeConstants {
     public static final ClosedLoopSlot RETRACT_SLOT = ClosedLoopSlot.kSlot1;
     public static final double RETRACT_ROTATIONS = -1;
 
-    public static final double ROLLER_P = 0.001;
+    public static final double ROLLER_P = 0.00015;
     public static final double ROLLER_I = 0;
     public static final double ROLLER_D = 0;
-    public static final double ROLLER_kS = 0;
-    public static final double ROLLER_kV = 0.002;
+    public static final double ROLLER_kS = 0.25;
+    public static final double ROLLER_kV = 0.0018;
     public static final double ROLLER_kA = 0;
 
     public static SparkFlexConfig leftSpinConfig() {
