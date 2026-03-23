@@ -1,5 +1,6 @@
 package org.wildstang.sample.subsystems.LED;
 
+import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
 
@@ -8,7 +9,17 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import org.wildstang.sample.robot.WsSubsystems;
+import org.wildstang.sample.subsystems.intake.Intake;
+import org.wildstang.sample.subsystems.launcher.Launcher;
+import org.wildstang.sample.subsystems.swerve.SwerveDrive;
+
+
 public class LedController implements Subsystem {
+
+    private Launcher launcher; 
+    private Intake intake; 
+    private SwerveDrive swerve;
 
     private static final int port = 0;
     private static final int length = 39;
@@ -30,6 +41,11 @@ public class LedController implements Subsystem {
         setRGB(0, 0, 0);
         led.start();
         patternUpdateClock.start();
+        
+        intake = (Intake) Core.getSubsystemManager().getSubsystem(WsSubsystems.INTAKE);
+        launcher = (Launcher) Core.getSubsystemManager().getSubsystem(WsSubsystems.LAUNCHER);
+        swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
+        
     }
 
     @Override
@@ -42,6 +58,26 @@ public class LedController implements Subsystem {
 
     @Override
     public void update() {
+        
+        if(launcher.isRunning()) {
+            ledBuffer.setRGB(length, 0, 225, 225);
+        }
+        else if(swerve.currentDriveState() == "auto") {
+            ledBuffer.setRGB(length, 0, 0, 139);
+        } else if(swerve.currentDriveState() == "teleop") {
+            ledBuffer.setRGB(length, 0, 0, 225);
+        } else if(swerve.currentDriveState() == "launch") {
+            ledBuffer.setRGB(length, 173, 216, 230);
+        } else if(swerve.currentDriveState() == "cross") {
+            ledBuffer.setRGB(length, 225, 0, 0);
+        } else if(swerve.currentDriveState() == "snake") {
+            ledBuffer.setRGB(length, 0, 225, 0);
+        } else if(swerve.currentDriveState() == "bump") {
+            ledBuffer.setRGB(length, 0, 0, 225);
+        } else if(swerve.currentDriveState() == "feed") {
+            ledBuffer.setRGB(length, 135, 206, 235);
+        }
+
         if (patternUpdateClock.hasElapsed(patternUpdateInterval)) {
             switch (ledState) {
                 case BLUE_RAINBOW:

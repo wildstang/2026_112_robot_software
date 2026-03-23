@@ -331,6 +331,14 @@ public class Launcher implements Subsystem {
             feedState = FeedState.IDLE;
         }
     }
+    
+    public boolean isRunning() {
+        if(launcherState.equals(LauncherState.FORWARD)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     @Override
     public void selfTest() {

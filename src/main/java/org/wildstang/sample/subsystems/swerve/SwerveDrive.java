@@ -356,6 +356,25 @@ public class SwerveDrive extends SwerveDriveTemplate {
     public boolean getVisionOverride() {
         return visionOverride;
     }
+    public String currentDriveState() { 
+        switch (driveState) {
+            case AUTO:
+               return "auto";
+            case TELEOP:
+               return "teleop";
+            case LAUNCH:
+               return "launch";
+            case CROSS:
+               return "cross";
+            case SNAKE:
+               return "snake";
+            case BUMP:
+               return "bump";
+            case FEED:
+               return "feed";
+        }
+                return null;
+    }
     
     @Override
     public void resetState() {
