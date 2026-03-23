@@ -103,6 +103,7 @@ public class Intake implements Subsystem {
         
         SmartDashboard.putNumber("Intake Position (Rot)", intakeDeploy.getPosition());
         SmartDashboard.putNumber("Intake Speed (RPM)", intakeRoller.getVelocity());
+        SmartDashboard.putNumber("Intake Target Speed (RPM)", targetRollerForwardVelocity);
 
         targetRollerForwardVelocity = targetRollerForwardVelocityEntry.getDouble(targetRollerForwardVelocity);
     }

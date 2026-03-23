@@ -36,8 +36,8 @@ public enum WsOutputs implements Outputs {
     // ---------------------------------
 
     INTAKE_DEPLOY("Intake Deploy Motor", new WsTalonConfig(CANConstants.INTAKE_DEPLOY, WsMotorControllers.TALON_FX)),
-    INTAKE_SPIN_LEFT("Left Intake Spin Motor", new WsSparkConfig(CANConstants.INTAKE_SPIN_LEFT, WsMotorControllers.SPARK_FLEX_BRUSHLESS, IntakeConstants.leftSpinConfig())),
-    INTAKE_SPIN_RIGHT("Right Intake Spin Motor", new WsSparkConfig(CANConstants.INTAKE_SPIN_RIGHT, WsMotorControllers.SPARK_FLEX_BRUSHLESS, IntakeConstants.rightSpinConfig())),
+    INTAKE_SPIN_LEFT("Left Intake Spin Motor", new WsSparkConfig(CANConstants.INTAKE_SPIN_LEFT, WsMotorControllers.SPARK_FLEX_BRUSHLESS, IntakeConstants.leftSpinConfig(), true)),
+    INTAKE_SPIN_RIGHT("Right Intake Spin Motor", new WsSparkConfig(CANConstants.INTAKE_SPIN_RIGHT, WsMotorControllers.SPARK_FLEX_BRUSHLESS, IntakeConstants.rightSpinConfig(), true)),
 
     FEEDER("Feeder Motor", new WsSparkConfig(CANConstants.FEEDER, WsMotorControllers.SPARK_MAX_BRUSHLESS, LauncherConstants.feedConfig())),
     PREACCEL("Pre-Accel Motor", new WsSparkConfig(CANConstants.PREACCEL, WsMotorControllers.SPARK_MAX_BRUSHLESS, LauncherConstants.preAccelConfig())),
