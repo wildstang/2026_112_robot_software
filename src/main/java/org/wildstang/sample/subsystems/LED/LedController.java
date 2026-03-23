@@ -69,7 +69,7 @@ public class LedController implements Subsystem {
 
     @Override
     public String getName() {
-        return ("LED");
+        return ("LED Controller");
     }
 
     private class HueGradient {

@@ -21,7 +21,7 @@ public class LauncherConstants {
     public static final double HOOD_D = 0;
     public static final int HOOD_LIMIT = 20;
 
-    public static final double LAUNCHER_P = 0.0012;
+    public static final double LAUNCHER_P = 0.001;
     public static final double LAUNCHER_I = 0;
     public static final double LAUNCHER_D = 0;
     public static final double LAUNCHER_kS = 0.131;
@@ -49,8 +49,8 @@ public class LauncherConstants {
         config.smartCurrentLimit(LAUNCHER_STALL_LIMIT, LAUNCHER_LIMIT);
         config.idleMode(IdleMode.kCoast);
 
-        config.encoder.quadratureAverageDepth(4);
-        config.encoder.quadratureMeasurementPeriod(1);
+        config.encoder.quadratureAverageDepth(24);
+        config.encoder.quadratureMeasurementPeriod(4);
 
         config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
         config.closedLoop.pid(LAUNCHER_P, LAUNCHER_I, LAUNCHER_D);

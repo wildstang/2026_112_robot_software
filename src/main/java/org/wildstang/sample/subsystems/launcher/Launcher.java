@@ -214,7 +214,7 @@ public class Launcher implements Subsystem {
                 //feed.setSpeed()
                 break;
             case AUTO:
-                if (launcherMiddle.getVelocity() > newLauncherSpeed + 50) {
+                if (launcherMiddle.getVelocity() >= newLauncherSpeed) {
                     feed.setSpeed(1);
                 } else if (launcherMiddle.getVelocity() < newLauncherSpeed - 100 || newLauncherSpeed == 0) {
                     feed.setSpeed(0);
