@@ -223,7 +223,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
             case SNAKE:
                 xOutput = xInput;
                 yOutput = yInput;
-                rOutput = swerveHelper.getRotControl(MathUtil.angleModulus(Math.atan2(yInput, xInput) - Math.PI / 2), gyroAngle);
+                rOutput = swerveHelper.getRotControl(MathUtil.angleModulus(Math.atan2(yInput, xInput) - Math.PI) , gyroAngle);
                 break;
             case BUMP:
                 xOutput = xInput;

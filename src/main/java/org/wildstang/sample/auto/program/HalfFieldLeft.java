@@ -1,15 +1,16 @@
 package org.wildstang.sample.auto.program;
 
 import org.wildstang.framework.auto.AutoProgram;
+import org.wildstang.framework.auto.AutoStep;
 import org.wildstang.framework.auto.steps.AutoParallelStepGroup;
 import org.wildstang.framework.auto.steps.SwervePathFollowerStep;
 import org.wildstang.framework.auto.steps.control.AutoStepStopAutonomous;
-import org.wildstang.framework.core.Core;
-import org.wildstang.sample.auto.steps.SetGyroStep;
-import org.wildstang.sample.auto.steps.SetIntakeStep;
-import org.wildstang.sample.auto.steps.SetLauncherStep;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
+import org.wildstang.framework.core.Core;
+import org.wildstang.sample.auto.steps.SetIntakeStep;
+import org.wildstang.sample.auto.steps.SetLauncherStep;
+import org.wildstang.sample.auto.steps.SetGyroStep;
 
 
 public class HalfFieldLeft extends AutoProgram {
@@ -51,15 +52,16 @@ public class HalfFieldLeft extends AutoProgram {
 
         AutoParallelStepGroup group5 = new AutoParallelStepGroup();
         group5.addStep(new SwervePathFollowerStep("ToShootingSpotLeft2", swerve));
-        group5.addStep(new SetLauncherStep());
         addStep(group5);
+        addStep(new SetLauncherStep());
+
 
         AutoParallelStepGroup group6 = new AutoParallelStepGroup();
-        group6.addStep(new SwervePathFollowerStep("BackToBeg", swerve));
+        group3.addStep(new SwervePathFollowerStep("BackToBeg", swerve));
         addStep(group6);
 
         //second run
-        AutoParallelStepGroup group7 = new AutoParallelStepGroup();
+         AutoParallelStepGroup group7 = new AutoParallelStepGroup();
         group7.addStep(new SwervePathFollowerStep("OverLeftBump2", swerve));
         addStep(group7);
 
@@ -79,12 +81,13 @@ public class HalfFieldLeft extends AutoProgram {
 
         AutoParallelStepGroup group11 = new AutoParallelStepGroup();
         group11.addStep(new SwervePathFollowerStep("ToShootingSpotLeft2", swerve));
-        group11.addStep(new SetLauncherStep());
         addStep(group11);
+        addStep(new SetLauncherStep());
+
 
         AutoParallelStepGroup group12 = new AutoParallelStepGroup();
         group12.addStep(new SwervePathFollowerStep("ToClimb2", swerve));
-// group12.addStep(new SetClimbStep(true));
+        // group12.addStep(new SetClimbStep(true));
         addStep(group12);
 
         addStep(new AutoStepStopAutonomous());

@@ -3,6 +3,7 @@ package org.wildstang.sample.subsystems.launcher;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
+import org.wildstang.hardware.roborio.inputs.WsDigitalInput;
 import org.wildstang.hardware.roborio.inputs.WsJoystickAxis;
 import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
@@ -26,6 +27,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Launcher implements Subsystem {
 
     // variables
+    private WsDigitalInput beamBreakSensor;
     private WsSpark launcherMiddle;
     private double targetLauncherVelocity = 2500;
 

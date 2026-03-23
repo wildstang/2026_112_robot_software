@@ -4,12 +4,12 @@ import org.wildstang.framework.auto.AutoProgram;
 import org.wildstang.framework.auto.steps.AutoParallelStepGroup;
 import org.wildstang.framework.auto.steps.SwervePathFollowerStep;
 import org.wildstang.framework.auto.steps.control.AutoStepStopAutonomous;
-import org.wildstang.sample.robot.WsSubsystems;
-import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 import org.wildstang.framework.core.Core;
+import org.wildstang.sample.auto.steps.SetGyroStep;
 import org.wildstang.sample.auto.steps.SetIntakeStep;
 import org.wildstang.sample.auto.steps.SetLauncherStep;
-import org.wildstang.sample.auto.steps.SetGyroStep;
+import org.wildstang.sample.robot.WsSubsystems;
+import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 
 public class HalfFieldRight extends AutoProgram {
@@ -51,8 +51,9 @@ public class HalfFieldRight extends AutoProgram {
 
         AutoParallelStepGroup group6 = new AutoParallelStepGroup();
         group6.addStep(new SwervePathFollowerStep("ToShootingSpot5", swerve));
-        group6.addStep(new SetLauncherStep());
         addStep(group6); 
+        addStep(new SetLauncherStep());
+
 
 
         addStep(new AutoStepStopAutonomous());

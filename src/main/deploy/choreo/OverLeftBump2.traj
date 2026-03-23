@@ -4,21 +4,23 @@
  "snapshot":{
   "waypoints":[
     {"x":3.496396541595459, "y":5.6, "heading":4.71238898038469, "intervals":29, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":5.7869768142700195, "y":5.6, "heading":4.71238898038469, "intervals":24, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false}],
+    {"x":5.7869768142700195, "y":5.6, "heading":4.71238898038469, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
-    {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":0.0, "y":0.0, "w":16.541, "h":8.0692}}, "enabled":false}],
+    {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":0.0, "y":0.0, "w":16.541, "h":8.0692}}, "enabled":false},
+    {"from":0, "to":1, "data":{"type":"KeepInLane", "props":{"tolerance":0.01}}, "enabled":true}],
   "targetDt":0.05
  },
  "params":{
   "waypoints":[
     {"x":{"exp":"3.496396541595459 m", "val":3.496396541595459}, "y":{"exp":"5.6 m", "val":5.6}, "heading":{"exp":"270 deg", "val":4.71238898038469}, "intervals":29, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"5.7869768142700195 m", "val":5.7869768142700195}, "y":{"exp":"5.6 m", "val":5.6}, "heading":{"exp":"270 deg", "val":4.71238898038469}, "intervals":24, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false}],
+    {"x":{"exp":"5.7869768142700195 m", "val":5.7869768142700195}, "y":{"exp":"5.6 m", "val":5.6}, "heading":{"exp":"270 deg", "val":4.71238898038469}, "intervals":20, "split":false, "fixTranslation":true, "fixHeading":false, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
-    {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"0 m", "val":0.0}, "y":{"exp":"0 m", "val":0.0}, "w":{"exp":"16.541 m", "val":16.541}, "h":{"exp":"8.0692 m", "val":8.0692}}}, "enabled":false}],
+    {"from":"first", "to":"last", "data":{"type":"KeepInRectangle", "props":{"x":{"exp":"0 m", "val":0.0}, "y":{"exp":"0 m", "val":0.0}, "w":{"exp":"16.541 m", "val":16.541}, "h":{"exp":"8.0692 m", "val":8.0692}}}, "enabled":false},
+    {"from":0, "to":1, "data":{"type":"KeepInLane", "props":{"tolerance":{"exp":"0.01 m", "val":0.01}}}, "enabled":true}],
   "targetDt":{
    "exp":"0.05 s",
    "val":0.05

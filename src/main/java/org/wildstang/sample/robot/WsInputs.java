@@ -131,8 +131,8 @@ public enum WsInputs implements Inputs {
 
     // ********************************
     // Digital IOs
-    // ********************************
-
+    // ************_
+    BEAM_BREAK_SENSOR("feed beem break sensor", new WsDigitalInputConfig(1, false))
     // -------------------------------
     // Networked sensors
     // -------------------------------

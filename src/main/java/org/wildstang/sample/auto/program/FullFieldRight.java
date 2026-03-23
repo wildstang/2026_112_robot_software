@@ -51,8 +51,9 @@ public class FullFieldRight extends AutoProgram {
 
         AutoParallelStepGroup group6 = new AutoParallelStepGroup();
         group6.addStep(new SwervePathFollowerStep("ToShootingPosition3", swerve));
-        group6.addStep(new SetLauncherStep());
         addStep(group6);
+        addStep(new SetLauncherStep());
+
 
         AutoParallelStepGroup group7 = new AutoParallelStepGroup();
         group7.addStep(new SwervePathFollowerStep("ToLeftBump4", swerve));
@@ -72,7 +73,7 @@ public class FullFieldRight extends AutoProgram {
         addStep(group10);
 
         AutoParallelStepGroup group11 = new AutoParallelStepGroup();
-        group11.addStep(new SwervePathFollowerStep("ToRightBump", swerve));
+        group11.addStep(new SwervePathFollowerStep("ToRightBump4", swerve));
         group11.addStep(new SetIntakeStep(false));
         addStep(group11);
 
@@ -82,8 +83,9 @@ public class FullFieldRight extends AutoProgram {
 
         AutoParallelStepGroup group13 = new AutoParallelStepGroup();
         group13.addStep(new SwervePathFollowerStep("ToShootingSpot4", swerve));
-        group13.addStep(new SetLauncherStep());
         addStep(group13);
+        addStep(new SetLauncherStep());
+
         
 
         addStep(new AutoStepStopAutonomous());
