@@ -96,9 +96,9 @@ public class SwerveDrive extends SwerveDriveTemplate {
     }
 
     public void initInputs() {
-        leftStickX = (AnalogInput) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_JOYSTICK_HORIZONTAL);
+        leftStickX = (AnalogInput) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_JOYSTICK_VERTICAL);
         leftStickX.addInputListener(this);
-        leftStickY = (AnalogInput) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_JOYSTICK_VERTICAL);
+        leftStickY = (AnalogInput) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_JOYSTICK_HORIZONTAL);
         leftStickY.addInputListener(this);
         rightStickX = (AnalogInput) Core.getInputManager().getInput(WsInputs.DRIVER_RIGHT_JOYSTICK_HORIZONTAL);
         rightStickX.addInputListener(this);
@@ -146,12 +146,12 @@ public class SwerveDrive extends SwerveDriveTemplate {
     }
 
     public void resetGyro() {
-        loc.setCurrentPose(Pose2d.kZero);
-            if (Core.isBlueAlliance()) {
-                setGyro(0);
-            } else {
-                setGyro(Math.PI);
-            }
+        
+        if (Core.isBlueAlliance()) {
+            loc.setCurrentPose(Pose2d.kZero);
+        } else {
+            loc.setCurrentPose(new Pose2d(Translation2d.kZero, Rotation2d.k180deg));
+        }
     }
 
     @Override
@@ -169,8 +169,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
         // get x and y speeds
         // joystick axes: +X is to the driver's right, +Y is away from the driver
         // field axes: +X is away from the blue alliance driver station, +Y is to the left from the blue alliance driver station perspective
-        xInput = swerveHelper.scaleDeadband(leftStickY.getValue(), DriveConstants.DEADBAND); // joystick y value corresponds to driving forward, i.e. pushing the stick away from the driver (stick +Y) should make the robot drive away from the driver station (field +X)
-        yInput = swerveHelper.scaleDeadband(-leftStickX.getValue(), DriveConstants.DEADBAND); // joystick x value corresponds to driving sideways in the opposite direction, i.e. pushing the stick to the drivers left (stick -X) should make the robot drive towards the 
+        xInput = swerveHelper.scaleDeadband(leftStickX.getValue(), DriveConstants.DEADBAND); // joystick y value corresponds to driving forward, i.e. pushing the stick away from the driver (stick +Y) should make the robot drive away from the driver station (field +X)
+        yInput = swerveHelper.scaleDeadband(-leftStickY.getValue(), DriveConstants.DEADBAND); // joystick x value corresponds to driving sideways in the opposite direction, i.e. pushing the stick to the drivers left (stick -X) should make the robot drive towards the 
 
         // reverse x/y directions if on red alliance to match field coordinate system
         if (!Core.isBlueAlliance()) {
@@ -245,7 +245,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         rOutput = MathUtil.clamp(rOutput, -1.0, 1.0);
         xOutput = MathUtil.clamp(xOutput, -1.0, 1.0);
         yOutput = MathUtil.clamp(yOutput, -1.0, 1.0);
-        this.swerveSignal = shouldCross ? swerveHelper.setCross() : swerveHelper.setDrive(xOutput , yOutput, rOutput, getGyroAngle());
+        this.swerveSignal = shouldCross ? swerveHelper.setCross() : swerveHelper.setDrive(xOutput , yOutput, rOutput, gyroAngle);
         drive();
         putDashboard();
     }
