@@ -71,14 +71,14 @@ public class Launcher implements Subsystem {
         FORWARD,
         IDLE,
         REVERSE,
-        OVERRIDE,
+        VISION_OVERRIDE,
     }
     
     private enum FeedState {
         FORWARD,
         IDLE,
         REVERSE,
-        OVERRIDE, // override button
+        MANUAL_OVERRIDE, // override button
         AUTO, // when holding down launcher
     }
     
@@ -166,9 +166,7 @@ public class Launcher implements Subsystem {
 
         // Override button
         if (isVisionOverride) {
-            newLauncherSpeed = visionOverrideLauncherSpeed;
-            newHoodAngle = 0;
-            launcherState = LauncherState.FORWARD;
+            launcherState = LauncherState.VISION_OVERRIDE;
             feedState = FeedState.AUTO;
         } else if (!isVisionOverride && wasVisionOverride) {
             launcherState = LauncherState.IDLE;
@@ -195,9 +193,10 @@ public class Launcher implements Subsystem {
                 launcherMiddle.setVelocity(-500);
                 preAccel.setSpeed(-1);
                 break;
-            case OVERRIDE:
-                // launcherMiddle.setVelocity();
-                // preAccel.setSpeed();
+            case VISION_OVERRIDE:
+                launcherMiddle.setVelocity(visionOverrideLauncherSpeed);
+                preAccel.setSpeed(1);
+                setHoodRotation(0);
                 break;
         }
 
@@ -212,16 +211,16 @@ public class Launcher implements Subsystem {
             case REVERSE:
                 feed.setSpeed(-1);
                 break;
-            case OVERRIDE:
+            case MANUAL_OVERRIDE:
                 //feed.setSpeed()
                 break;
             case AUTO:
                 if (launcherMiddle.getVelocity() >= newLauncherSpeed) {
                     feed.setSpeed(1);
-                    intake.intakeFeed();
+                    intake.setIngestMode(true);
                 } else if (launcherMiddle.getVelocity() < newLauncherSpeed - 100 || newLauncherSpeed == 0) {
                     feed.setSpeed(0);
-                    intake.intakeDisable();
+                    intake.setIngestMode(false);
                 }
                 break;
         }
@@ -267,7 +266,7 @@ public class Launcher implements Subsystem {
                 launcherState = LauncherState.IDLE;
                 feedState = FeedState.IDLE;
                 drive.setToTeleop();
-                intake.intakeDisable();
+                intake.rollersDisable();
             }
         } else if (source == driverLeftTrigger) {
             if (Math.abs(driverLeftTrigger.getValue()) >= 0.5) {

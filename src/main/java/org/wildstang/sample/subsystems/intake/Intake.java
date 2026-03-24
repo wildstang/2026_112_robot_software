@@ -29,24 +29,26 @@ public class Intake implements Subsystem {
         FORWARD,
         OFF,
         REVERSE, 
-        FEED
+        HALF_FORWARD
     }
 
     private enum IntakeState {
-        DEPLOYED,
-        RETRACTED,
+        DEPLOY,
+        RETRACT,
+        INGEST
     }
 
     private RollerState rollerState = RollerState.OFF;
-    private IntakeState intakeState = IntakeState.RETRACTED;
+    private IntakeState intakeState = IntakeState.RETRACT;
 
     @Override
     public void init() {
         intakeDeploy = (WsTalon) WsOutputs.INTAKE_DEPLOY.get();
         intakeDeploy.setCurrentLimit(40,40);
         // intakeDeploy.resetEncoder();
-        intakeDeploy.initClosedLoop(IntakeConstants.DEPLOY_P, IntakeConstants.DEPLOY_I, IntakeConstants.DEPLOY_D);   // Slot 0
-        intakeDeploy.addClosedLoop(IntakeConstants.RETRACT_P, IntakeConstants.RETRACT_I, IntakeConstants.RETRACT_D);  // Slot 1
+        intakeDeploy.initClosedLoop(IntakeConstants.DEPLOY_P, IntakeConstants.DEPLOY_I, IntakeConstants.DEPLOY_D, 0);   // Slot 0
+        intakeDeploy.initClosedLoop(IntakeConstants.RETRACT_P, IntakeConstants.RETRACT_I, IntakeConstants.RETRACT_D, 1);  // Slot 1
+        intakeDeploy.initClosedLoop(IntakeConstants.INGEST_P, IntakeConstants.INGEST_I, IntakeConstants.INGEST_D, 2); // Slot 2
 
         intakeRoller = (WsSpark) WsOutputs.INTAKE_SPIN_LEFT.get();
 
@@ -65,29 +67,29 @@ public class Intake implements Subsystem {
 
     @Override
     public void update() {
-         if (intakeState == IntakeState.DEPLOYED){
-            intakeDeploy.setPosition(IntakeConstants.DEPLOY_ROTATIONS, 0);
-        } else  {
-            // intakeDeploy.setPosition(IntakeConstants.RETRACT_ROTATIONS, 1);
-        }
-        
-        if (rollerState == RollerState.FEED) {
+
+        // set rollerState
+        if (rollerState == RollerState.HALF_FORWARD) {
             // don't change state if in feed mode
-        } else if (intakeRetractTimer.isRunning()) { // if timer running
-            // stop timer if past n seconds
-            if (intakeRetractTimer.hasElapsed(0.75)) { 
-                rollerState = RollerState.OFF;
-                intakeRetractTimer.stop();
-            } else {
-                // power rollers for n seconds after retract
-                rollerState = RollerState.FORWARD; 
-            }
-        } else if (intakeState == IntakeState.DEPLOYED) { 
+        } else if (intakeState == IntakeState.DEPLOY) { 
             // Roll rollers while deployed, unless overridden
             if (rollerState != RollerState.REVERSE) rollerState = RollerState.FORWARD;
-        } else {
+        } else if (intakeState == IntakeState.RETRACT) {
             // Don't run rollers when retracted
             if (rollerState != RollerState.REVERSE) rollerState = RollerState.OFF;
+        }
+
+        switch (intakeState) {
+            case DEPLOY:
+                intakeDeploy.setPosition(IntakeConstants.DEPLOY_ROTATIONS, 0);
+                break;
+            case RETRACT:
+                // intakeDeploy.setPosition(IntakeConstants.RETRACT_ROTATIONS, 1);
+                break;
+            case INGEST:
+                // intakeDeploy.setPosition(IntakeConstants.RETRACT_ROTATIONS, 2);
+                rollerState = RollerState.HALF_FORWARD;
+                break;
         }
 
         switch (rollerState) {
@@ -100,8 +102,8 @@ public class Intake implements Subsystem {
             case REVERSE:
                 intakeRoller.setSpeed(-1);
                 break;
-            case FEED:
-                intakeRoller.setSpeed(0.5);
+            case HALF_FORWARD:
+                intakeRoller.setVelocity(targetRollerForwardVelocity / 2);
                 break;
         }
 
@@ -120,11 +122,11 @@ public class Intake implements Subsystem {
     public void inputUpdate(Input source) {
         if (source == btnX) {
             if (btnX.getValue()) {
-                if (intakeState == IntakeState.DEPLOYED) {
-                    intakeState = IntakeState.RETRACTED;
+                if (intakeState == IntakeState.DEPLOY) {
+                    intakeState = IntakeState.RETRACT;
                     intakeRetractTimer.restart();
                 } else {
-                    intakeState = IntakeState.DEPLOYED;
+                    intakeState = IntakeState.DEPLOY;
                 }
             }
         }
@@ -132,7 +134,7 @@ public class Intake implements Subsystem {
             if (btnA.getValue()) {
                 rollerState = RollerState.REVERSE;
             } else {
-                if (intakeState == IntakeState.DEPLOYED) {
+                if (intakeState == IntakeState.DEPLOY) {
                     rollerState = RollerState.FORWARD;
                 } else {
                     rollerState = RollerState.OFF;
@@ -142,24 +144,24 @@ public class Intake implements Subsystem {
     }
 
     public void deployIntake() {
-        intakeState = IntakeState.DEPLOYED;
+        intakeState = IntakeState.DEPLOY;
     }
 
-    public void removeIntake() {
-        intakeState = IntakeState.RETRACTED;
+    public void retractIntake() {
+        intakeState = IntakeState.RETRACT;
         intakeRetractTimer.restart();
     }
 
-    public void intakeFeed() {
-        rollerState = RollerState.FEED;
+    public void setIngestMode(boolean newValue) {
+        intakeState = IntakeState.INGEST;
     }
 
-    public void intakeDisable() {
+    public void rollersDisable() {
         rollerState = RollerState.OFF;
     }
 
     public boolean isDeployed() {
-        return intakeState == IntakeState.DEPLOYED;
+        return intakeState == IntakeState.DEPLOY;
     }
 
     @Override

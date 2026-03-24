@@ -31,6 +31,10 @@ public class IntakeConstants {
     public static final double ROLLER_kV = 0.0018;
     public static final double ROLLER_kA = 0;
 
+    public static final double INGEST_P = 0;
+    public static final double INGEST_I = 0;
+    public static final double INGEST_D = 0;
+
     public static SparkFlexConfig leftSpinConfig() {
         SparkFlexConfig config = new SparkFlexConfig();
         config.smartCurrentLimit(SPIN_STALL_LIMIT, SPIN_LIMIT);

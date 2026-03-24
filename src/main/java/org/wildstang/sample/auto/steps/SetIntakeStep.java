@@ -24,7 +24,7 @@ public class SetIntakeStep extends AutoStep{
         if(deployed) {
             intake.deployIntake();
         } else {
-            intake.removeIntake();
+            intake.retractIntake();
         }
         setFinished();
     }
