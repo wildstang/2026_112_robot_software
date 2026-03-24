@@ -6,6 +6,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.Slot1Configs;
+import com.ctre.phoenix6.configs.Slot2Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.DutyCycleOut;
@@ -186,23 +187,57 @@ public class WsTalon extends WsMotorController {
      * @param D the D value
      */
     public void initClosedLoop(double P, double I, double D){
-        Slot0Configs slot0 = new Slot0Configs();
-        slot0.kP = P;
-        slot0.kI = I;
-        slot0.kD = D;
-        config.withSlot0(slot0);
-        applyConfigs();
+        initClosedLoop(P, I, D, 0);
     }
+
     public void initClosedLoop(double P, double I, double D, double S, double V){
-        Slot0Configs slot0 = new Slot0Configs();
-        slot0.kP = P;
-        slot0.kI = I;
-        slot0.kD = D;
-        slot0.kS = S;
-        slot0.kV = V;
-        config.withSlot0(slot0);
+        initClosedLoop(P, I, D, S, V, 0);
+    }
+
+    public void initClosedLoop(double P, double I, double D, int num) {
+        switch (num) {
+            case 0 -> {
+                Slot0Configs slot = new Slot0Configs();
+                slot.kP = P; slot.kI = I; slot.kD = D;
+                config.withSlot0(slot);
+            }
+            case 1 -> {
+                Slot1Configs slot = new Slot1Configs();
+                slot.kP = P; slot.kI = I; slot.kD = D;
+                config.withSlot1(slot);
+            }
+            case 2 -> {
+                Slot2Configs slot = new Slot2Configs();
+                slot.kP = P; slot.kI = I; slot.kD = D;
+                config.withSlot2(slot);
+            }
+            default -> initClosedLoop(P, I, D, 0);
+        }
         applyConfigs();
     }
+
+    public void initClosedLoop(double P, double I, double D, double S, double V, int num) {
+        switch (num) {
+            case 0 -> {
+                Slot0Configs slot = new Slot0Configs();
+                slot.kP = P; slot.kI = I; slot.kD = D; slot.kS = S; slot.kV = V;
+                config.withSlot0(slot);
+            }
+            case 1 -> {
+                Slot1Configs slot = new Slot1Configs();
+                slot.kP = P; slot.kI = I; slot.kD = D; slot.kS = S; slot.kV = V;
+                config.withSlot1(slot);
+            }
+            case 2 -> {
+                Slot2Configs slot = new Slot2Configs();
+                slot.kP = P; slot.kI = I; slot.kD = D; slot.kS = S; slot.kV = V;
+                config.withSlot2(slot);
+            }
+            default -> initClosedLoop(P, I, D, S, V, 0);
+        }
+        applyConfigs();
+    }
+
     /*
      * Adds a closed loop control slot for the talon
      * @param slotID the slot number of the constants, 0 is default, either 1-3 otherwise
