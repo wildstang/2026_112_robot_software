@@ -5,6 +5,7 @@ import org.wildstang.sample.auto.program.FeedFullField;
 import org.wildstang.sample.auto.program.FullFieldLeft;
 import org.wildstang.sample.auto.program.FullFieldRight;
 import org.wildstang.sample.auto.program.HalfFieldLeft;
+import org.wildstang.sample.auto.program.HalfFieldRight;
 import org.wildstang.sample.auto.program.Trench;
 import org.wildstang.sample.auto.program.ShootMid;
 
@@ -20,6 +21,7 @@ public enum WsAutoPrograms implements AutoPrograms {
     FULL_FEED_LEFT("FullFieldLeft", FullFieldLeft.class),
     FEED_FULL_FIELD("FeedFullField", FeedFullField.class),
     FULL_FEED_RIGHT("FullFieldRight", FullFieldRight.class),
+    HALF_FIELD_RIGHT("HalfFieldRight", HalfFieldRight.class),
     HALF_FIELD_LEFT("HalfFieldLeft", HalfFieldLeft.class),
     TRENCH("Trench", Trench.class),
     SHOOT_MID("ShootMid", ShootMid.class)

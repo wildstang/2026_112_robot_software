@@ -25,27 +25,19 @@ public class HalfFieldRight extends AutoProgram {
 
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
 
-        addStep(new SetGyroStep(4.71239));
+        addStep(new SetGyroStep(Math.PI / 2));
 
         AutoParallelStepGroup group1 = new AutoParallelStepGroup();
         group1.addStep(new SwervePathFollowerStep("OverRightBump5", swerve));
         addStep(group1); 
 
         AutoParallelStepGroup group2 = new AutoParallelStepGroup();
-        group2.addStep(new SwervePathFollowerStep("ToBallsRight5", swerve));
+        group2.addStep(new SwervePathFollowerStep("RightHalfSwipe", swerve));
         group2.addStep(new SetIntakeStep(true));
-        addStep(group2); 
-
-        AutoParallelStepGroup group3 = new AutoParallelStepGroup();
-        group3.addStep(new SwervePathFollowerStep("GetBallsToBump5", swerve));
-        addStep(group3); 
-
-        AutoParallelStepGroup group4 = new AutoParallelStepGroup();
-        group4.addStep(new SwervePathFollowerStep("FromBallsToBump5", swerve));
-        group4.addStep(new SetIntakeStep(false));
-        addStep(group4); 
+        addStep(group2);
 
         AutoParallelStepGroup group5 = new AutoParallelStepGroup();
+        group5.addStep(new SetIntakeStep(false));
         group5.addStep(new SwervePathFollowerStep("AcrossRightBump5", swerve));
         addStep(group5); 
 
