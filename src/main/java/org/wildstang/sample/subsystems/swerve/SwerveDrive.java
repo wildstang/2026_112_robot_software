@@ -4,7 +4,6 @@ import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.inputs.AnalogInput;
 import org.wildstang.framework.io.inputs.DigitalInput;
 import org.wildstang.framework.io.inputs.Input;
-import org.wildstang.framework.logger.Log;
 import org.wildstang.framework.subsystems.swerve.SwerveDriveTemplate;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
 import org.wildstang.sample.robot.CANConstants;
@@ -13,7 +12,6 @@ import org.wildstang.sample.robot.WsOutputs;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.localization.Localization;
 
-import com.ctre.phoenix6.StatusCode;
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.MathUtil;
@@ -62,9 +60,14 @@ public class SwerveDrive extends SwerveDriveTemplate {
     public final Pigeon2 gyro = new Pigeon2(CANConstants.GYRO);
     public SwerveModule[] modules;
     private SwerveSignal swerveSignal;
-    private WsSwerveHelper swerveHelper = new WsSwerveHelper();
+    private final WsSwerveHelper swerveHelper = new WsSwerveHelper();
 
     public SwerveDriveKinematics swerveKinematics;
+
+    @Override
+    public void setGyro(double degrees) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
     public enum DriveState {LAUNCH, TELEOP, AUTO, CROSS, BUMP, SNAKE, FEED};
     public DriveState driveState;
@@ -334,11 +337,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
      * Used for starting the match at a non-0 angle
      * @param radians the current value the gyro should read
      */
-    public void setGyro(double radians) {
-        Log.warn("New gyro value: " + radians);
-        StatusCode code = gyro.setYaw(radians * RAD_TO_DEG);
-        Log.warn("Gyro Status Code: " + code.getName());
-    }
 
     public double getGyroAngle() {
         return MathUtil.angleModulus(gyro.getYaw().getValueAsDouble() * DEG_TO_RAD);
