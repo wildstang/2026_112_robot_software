@@ -157,7 +157,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
     public void inputUpdate(Input source) {
         if (source == dpadDown && dpadDown.getValue()) visionOverride = !visionOverride;
         // reset gyro when facing away from alliance station
-        // if (source == select && select.getValue()) resetGyro();
+        if (source == select && select.getValue()) resetGyro();
         
         if (source == leftBumper && leftBumper.getValue()) toggleDriveState(DriveState.CROSS);
         if (source == rightBumper && rightBumper.getValue()) toggleDriveState(DriveState.SNAKE);
