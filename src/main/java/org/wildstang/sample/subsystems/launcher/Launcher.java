@@ -244,6 +244,7 @@ public class Launcher implements Subsystem {
         SmartDashboard.putNumber("Hood Position (Deg)", getHoodRotation());
         
         SmartDashboard.putString("Launcher State", launcherState.toString());
+        SmartDashboard.putString("Feed State", feedState.toString());
 
         targetLauncherVelocity = targetLauncherVelocityEntry.getDouble(targetLauncherVelocity);
         targetHoodAngle = targetHoodAngleEntry.getDouble(targetHoodAngle);
@@ -265,6 +266,8 @@ public class Launcher implements Subsystem {
             } else if (!hasInput && launcherState == LauncherState.FORWARD) {
                 launcherState = LauncherState.IDLE;
                 feedState = FeedState.IDLE;
+                drive.setToTeleop();
+                intake.intakeDisable();
             }
         } else if (source == driverLeftTrigger) {
             if (Math.abs(driverLeftTrigger.getValue()) >= 0.5) {

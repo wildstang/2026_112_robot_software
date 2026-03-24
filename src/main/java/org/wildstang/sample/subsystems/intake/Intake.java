@@ -44,7 +44,7 @@ public class Intake implements Subsystem {
     public void init() {
         intakeDeploy = (WsTalon) WsOutputs.INTAKE_DEPLOY.get();
         intakeDeploy.setCurrentLimit(40,40);
-        intakeDeploy.resetEncoder();
+        // intakeDeploy.resetEncoder();
         intakeDeploy.initClosedLoop(IntakeConstants.DEPLOY_P, IntakeConstants.DEPLOY_I, IntakeConstants.DEPLOY_D);   // Slot 0
         intakeDeploy.addClosedLoop(IntakeConstants.RETRACT_P, IntakeConstants.RETRACT_I, IntakeConstants.RETRACT_D);  // Slot 1
 
@@ -105,7 +105,8 @@ public class Intake implements Subsystem {
                 break;
         }
 
-        SmartDashboard.putBoolean("Deploy Intake", intakeState == IntakeState.DEPLOYED);
+        SmartDashboard.putString("Intake State", intakeState.toString());
+        SmartDashboard.putString("Roller State", rollerState.toString());
         SmartDashboard.putNumber("Intake Output Percent", intakeRoller.getOutput());
         
         SmartDashboard.putNumber("Intake Position (Rot)", intakeDeploy.getPosition());

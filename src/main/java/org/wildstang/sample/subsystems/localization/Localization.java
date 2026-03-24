@@ -266,8 +266,7 @@ public class Localization implements Subsystem {
      * @return Angle to the target in radians.
      */
     public double getTargetAngle() {
-        Rotation2d robotCentric = getTarget().getAngle();
-        return currentPose.getRotation().plus(robotCentric).getRadians();
+        return getTarget().getAngle().getRadians();
     }
 
     @Override

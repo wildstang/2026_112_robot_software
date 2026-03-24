@@ -269,7 +269,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         SmartDashboard.putNumber("X output", xOutput);
         SmartDashboard.putNumber("Y output", yOutput);
         SmartDashboard.putNumber("rOutput", rOutput);
-        SmartDashboard.putString("Drive mode", driveState.toString());
+        SmartDashboard.putString("Drive State", driveState.toString());
         SmartDashboard.putBoolean("Blue Alliance", Core.isBlueAlliance());
         SmartDashboard.putBoolean("Pose Estimator Override", visionOverride);
         moduleStates = new SwerveModuleState[] {modules[0].getModuleState(),modules[1].getModuleState(),modules[2].getModuleState(),modules[3].getModuleState()};
