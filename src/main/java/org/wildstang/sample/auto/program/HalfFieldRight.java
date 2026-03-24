@@ -54,9 +54,39 @@ public class HalfFieldRight extends AutoProgram {
         addStep(group6); 
         addStep(new SetLauncherStep());
 
+        AutoParallelStepGroup group7 = new AutoParallelStepGroup();
+        group7.addStep(new SwervePathFollowerStep("BackToBegRight", swerve));
 
+        AutoParallelStepGroup group8 = new AutoParallelStepGroup();
+        group8.addStep(new SwervePathFollowerStep("OverRightBump5", swerve));
+        addStep(group8); 
+
+        AutoParallelStepGroup group9 = new AutoParallelStepGroup();
+        group9.addStep(new SwervePathFollowerStep("ToBallsRight5", swerve));
+        group9.addStep(new SetIntakeStep(true));
+        addStep(group9); 
+
+        AutoParallelStepGroup group10 = new AutoParallelStepGroup();
+        group10.addStep(new SwervePathFollowerStep("GetBallsToBump5", swerve));
+        addStep(group10); 
+
+        AutoParallelStepGroup group11 = new AutoParallelStepGroup();
+        group11.addStep(new SwervePathFollowerStep("FromBallsToBump5", swerve));
+        group11.addStep(new SetIntakeStep(false));
+        addStep(group11); 
+
+        AutoParallelStepGroup group12 = new AutoParallelStepGroup();
+        group12.addStep(new SwervePathFollowerStep("AcrossRightBump5", swerve));
+        addStep(group12); 
+
+        AutoParallelStepGroup group13 = new AutoParallelStepGroup();
+        group13.addStep(new SwervePathFollowerStep("ToShootingSpot5", swerve));
+        addStep(group13); 
+        addStep(new SetLauncherStep());
 
         addStep(new AutoStepStopAutonomous());
+
+        
 
     }
     /**

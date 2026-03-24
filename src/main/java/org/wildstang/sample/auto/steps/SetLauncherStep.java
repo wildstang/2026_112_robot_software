@@ -19,12 +19,13 @@ public class SetLauncherStep extends AutoStep{
     public void initialize() {
         launcher = (Launcher) Core.getSubsystemManager().getSubsystem(WsSubsystems.LAUNCHER);
         swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
-        timer.start();
-        
+        timer.reset();
+        timer.start();       
+        launcher.startLaunch();
+
     }
     @Override
     public void update() {
-        launcher.startLaunch();
         if (timer.get() >= 4.0){
             launcher.stopLaunch();
             swerve.resetState();

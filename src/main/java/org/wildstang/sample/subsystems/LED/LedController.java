@@ -3,16 +3,15 @@ package org.wildstang.sample.subsystems.LED;
 import org.wildstang.framework.core.Core;
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
+import org.wildstang.sample.robot.WsSubsystems;
+import org.wildstang.sample.subsystems.intake.Intake;
+import org.wildstang.sample.subsystems.launcher.Launcher;
+import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import org.wildstang.sample.robot.WsSubsystems;
-import org.wildstang.sample.subsystems.intake.Intake;
-import org.wildstang.sample.subsystems.launcher.Launcher;
-import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 
 public class LedController implements Subsystem {
@@ -30,6 +29,7 @@ public class LedController implements Subsystem {
     private AddressableLEDBuffer ledBuffer;
     private Timer patternUpdateClock = new Timer();
     private LEDStates ledState = LEDStates.BLUE_RAINBOW;
+    private boolean blink = false;
 
     private HueGradient blueRainbow = new HueGradient(85, 120, 255, 255);
 
@@ -76,13 +76,44 @@ public class LedController implements Subsystem {
         //     ledBuffer.setRGB(length, 135, 206, 235);
         // }
 
-        if (patternUpdateClock.hasElapsed(patternUpdateInterval)) {
-            switch (ledState) {
-                case BLUE_RAINBOW:
-                    blueRainbow.update();
-                    break;
+        String state = swerve.currentDriveState();
+   
+       if (patternUpdateClock.hasElapsed(0.2)) {
+            blink = !blink;
+             patternUpdateClock.reset();
+        }   
+         if (launcher.isRunning()) {
+            if (blink) {
+                setRGB(0, 255, 225);
+             } else {
+                setRGB(0, 0, 0);
             }
         }
+        else if(state.equals("auto")) {
+            setRGB(0, 0, 139);
+        } else if(state.equals("teleop")) {
+                blueRainbow.update();
+        } else if(state.equals("launch")) {
+            setRGB(173, 216, 230);
+        } else if(state.equals("cross")) {
+            setRGB(225, 0, 0);
+        } else if(state.equals("snake") ) {
+            setRGB(0, 255, 0);
+        } else if(state.equals("bump")) {
+                blueRainbow.update();
+        } else if(state.equals("feed")) {
+            setRGB(135, 206, 235);
+        } else {
+            setRGB(0, 0, 225);
+        }
+
+        // if (patternUpdateClock.hasElapsed(patternUpdateInterval)) {
+        //     switch (ledState) {
+        //         case BLUE_RAINBOW:
+        //             // blueRainbow.update();
+        //             break;
+        //     }
+        // }
         SmartDashboard.putString("LED state", ledState.toString());
     }
 

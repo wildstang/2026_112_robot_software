@@ -7,8 +7,8 @@ import org.wildstang.sample.subsystems.intake.Intake;
 
 public class SetIntakeStep extends AutoStep{
 
-    public Intake intake; 
-    public boolean deployed;
+    private Intake intake; 
+    private boolean deployed;
 
     public SetIntakeStep(boolean deployed){
         this.deployed = deployed;
@@ -21,13 +21,16 @@ public class SetIntakeStep extends AutoStep{
 
     @Override
     public void update() {
+      if(intake != null) {
         if(deployed) {
             intake.deployIntake();
         } else {
             intake.retractIntake();
         }
-        setFinished();
     }
+        setFinished();
+
+}
 
     @Override
     public String toString() {
