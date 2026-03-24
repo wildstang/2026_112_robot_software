@@ -46,7 +46,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
     private DigitalInput rightStickButton; // Bump mode
     private DigitalInput leftBumper; // Cross mode
     private DigitalInput rightBumper; // Snake mode
-    private DigitalInput leftStickButton; // TODO: disable vision
+    private DigitalInput dpadDown; // TODO: disable vision
 
     private double xOutput;
     private double yOutput;
@@ -110,8 +110,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
         leftBumper.addInputListener(this);
         rightBumper = (DigitalInput) Core.getInputManager().getInput(WsInputs.DRIVER_RIGHT_SHOULDER);
         rightBumper.addInputListener(this);
-        leftStickButton = (DigitalInput) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_JOYSTICK_BUTTON);
-        leftStickButton.addInputListener(this);
+        dpadDown = (DigitalInput) Core.getInputManager().getInput(WsInputs.DRIVER_DPAD_DOWN);
+        dpadDown.addInputListener(this);
 
     }
 
@@ -146,7 +146,6 @@ public class SwerveDrive extends SwerveDriveTemplate {
     }
 
     public void resetGyro() {
-        
         if (Core.isBlueAlliance()) {
             loc.setCurrentPose(Pose2d.kZero);
         } else {
@@ -156,9 +155,9 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     @Override
     public void inputUpdate(Input source) {
-        if (source == leftStickButton && leftStickButton.getValue()) visionOverride = !visionOverride;
+        if (source == dpadDown && dpadDown.getValue()) visionOverride = !visionOverride;
         // reset gyro when facing away from alliance station
-        if (source == select && select.getValue()) resetGyro();
+        // if (source == select && select.getValue()) resetGyro();
         
         if (source == leftBumper && leftBumper.getValue()) toggleDriveState(DriveState.CROSS);
         if (source == rightBumper && rightBumper.getValue()) toggleDriveState(DriveState.SNAKE);
