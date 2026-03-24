@@ -156,7 +156,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     @Override
     public void inputUpdate(Input source) {
-        if (source == leftStickButton) visionOverride = leftStickButton.getValue();
+        if (source == leftStickButton && leftStickButton.getValue()) visionOverride = !visionOverride;
         // reset gyro when facing away from alliance station
         if (source == select && select.getValue()) resetGyro();
         
@@ -392,5 +392,9 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     @Override
     public void setAutoHeading(double headingTarget) {
+    }
+
+    public void setToLaunch() {
+        driveState = DriveState.LAUNCH;
     }
 }

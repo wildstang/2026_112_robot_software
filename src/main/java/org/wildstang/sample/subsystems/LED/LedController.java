@@ -41,11 +41,6 @@ public class LedController implements Subsystem {
         setRGB(0, 0, 0);
         led.start();
         patternUpdateClock.start();
-        
-        intake = (Intake) Core.getSubsystemManager().getSubsystem(WsSubsystems.INTAKE);
-        launcher = (Launcher) Core.getSubsystemManager().getSubsystem(WsSubsystems.LAUNCHER);
-        swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
-        
     }
 
     @Override
@@ -54,29 +49,32 @@ public class LedController implements Subsystem {
     
     @Override
     public void initSubsystems() {
+        intake = (Intake) Core.getSubsystemManager().getSubsystem(WsSubsystems.INTAKE);
+        launcher = (Launcher) Core.getSubsystemManager().getSubsystem(WsSubsystems.LAUNCHER);
+        swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
     }
 
     @Override
     public void update() {
         
-        if(launcher.isRunning()) {
-            ledBuffer.setRGB(length, 0, 225, 225);
-        }
-        else if(swerve.currentDriveState() == "auto") {
-            ledBuffer.setRGB(length, 0, 0, 139);
-        } else if(swerve.currentDriveState() == "teleop") {
-            ledBuffer.setRGB(length, 0, 0, 225);
-        } else if(swerve.currentDriveState() == "launch") {
-            ledBuffer.setRGB(length, 173, 216, 230);
-        } else if(swerve.currentDriveState() == "cross") {
-            ledBuffer.setRGB(length, 225, 0, 0);
-        } else if(swerve.currentDriveState() == "snake") {
-            ledBuffer.setRGB(length, 0, 225, 0);
-        } else if(swerve.currentDriveState() == "bump") {
-            ledBuffer.setRGB(length, 0, 0, 225);
-        } else if(swerve.currentDriveState() == "feed") {
-            ledBuffer.setRGB(length, 135, 206, 235);
-        }
+        // if(launcher.isRunning()) {
+        //     ledBuffer.setRGB(length, 0, 225, 225);
+        // }
+        // else if(swerve.currentDriveState() == "auto") {
+        //     ledBuffer.setRGB(length, 0, 0, 139);
+        // } else if(swerve.currentDriveState() == "teleop") {
+        //     ledBuffer.setRGB(length, 0, 0, 225);
+        // } else if(swerve.currentDriveState() == "launch") {
+        //     ledBuffer.setRGB(length, 173, 216, 230);
+        // } else if(swerve.currentDriveState() == "cross") {
+        //     ledBuffer.setRGB(length, 225, 0, 0);
+        // } else if(swerve.currentDriveState() == "snake") {
+        //     ledBuffer.setRGB(length, 0, 225, 0);
+        // } else if(swerve.currentDriveState() == "bump") {
+        //     ledBuffer.setRGB(length, 0, 0, 225);
+        // } else if(swerve.currentDriveState() == "feed") {
+        //     ledBuffer.setRGB(length, 135, 206, 235);
+        // }
 
         if (patternUpdateClock.hasElapsed(patternUpdateInterval)) {
             switch (ledState) {

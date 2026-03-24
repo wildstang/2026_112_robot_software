@@ -28,7 +28,8 @@ public class Intake implements Subsystem {
     private enum RollerState {
         FORWARD,
         OFF,
-        REVERSE
+        REVERSE, 
+        FEED
     }
 
     private enum IntakeState {
@@ -42,6 +43,7 @@ public class Intake implements Subsystem {
     @Override
     public void init() {
         intakeDeploy = (WsTalon) WsOutputs.INTAKE_DEPLOY.get();
+        intakeDeploy.setCurrentLimit(40,40);
         intakeDeploy.resetEncoder();
         intakeDeploy.initClosedLoop(IntakeConstants.DEPLOY_P, IntakeConstants.DEPLOY_I, IntakeConstants.DEPLOY_D);   // Slot 0
         intakeDeploy.addClosedLoop(IntakeConstants.RETRACT_P, IntakeConstants.RETRACT_I, IntakeConstants.RETRACT_D);  // Slot 1
@@ -66,10 +68,12 @@ public class Intake implements Subsystem {
          if (intakeState == IntakeState.DEPLOYED){
             intakeDeploy.setPosition(IntakeConstants.DEPLOY_ROTATIONS, 0);
         } else  {
-            intakeDeploy.setPosition(IntakeConstants.RETRACT_ROTATIONS, 1);
+            // intakeDeploy.setPosition(IntakeConstants.RETRACT_ROTATIONS, 1);
         }
         
-        if (intakeRetractTimer.isRunning()) { // if timer running
+        if (rollerState == RollerState.FEED) {
+            // don't change state if in feed mode
+        } else if (intakeRetractTimer.isRunning()) { // if timer running
             // stop timer if past n seconds
             if (intakeRetractTimer.hasElapsed(0.75)) { 
                 rollerState = RollerState.OFF;
@@ -95,6 +99,9 @@ public class Intake implements Subsystem {
                 break;
             case REVERSE:
                 intakeRoller.setSpeed(-1);
+                break;
+            case FEED:
+                intakeRoller.setSpeed(0.5);
                 break;
         }
 
@@ -140,6 +147,14 @@ public class Intake implements Subsystem {
     public void removeIntake() {
         intakeState = IntakeState.RETRACTED;
         intakeRetractTimer.restart();
+    }
+
+    public void intakeFeed() {
+        rollerState = RollerState.FEED;
+    }
+
+    public void intakeDisable() {
+        rollerState = RollerState.OFF;
     }
 
     public boolean isDeployed() {

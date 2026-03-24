@@ -12,17 +12,17 @@ public class IntakeConstants {
     public static final int SPIN_LIMIT = 60;
     public static final int SPIN_STALL_LIMIT = 60;
 
-    public static final double DEPLOY_P = 0;
+    public static final double DEPLOY_P = 0.01;
     public static final double DEPLOY_I = 0;
     public static final double DEPLOY_D = 0;
     public static final ClosedLoopSlot DEPLOY_SLOT = ClosedLoopSlot.kSlot0;;
-    public static final double DEPLOY_ROTATIONS = 34.3;
+    public static final double DEPLOY_ROTATIONS = 35;
 
-    public static final double RETRACT_P = 0;
+    public static final double RETRACT_P = 0.02;
     public static final double RETRACT_I = 0;
     public static final double RETRACT_D = 0;
     public static final ClosedLoopSlot RETRACT_SLOT = ClosedLoopSlot.kSlot1;
-    public static final double RETRACT_ROTATIONS = -1;
+    public static final double RETRACT_ROTATIONS = -5;
 
     public static final double ROLLER_P = 0.00015;
     public static final double ROLLER_I = 0;

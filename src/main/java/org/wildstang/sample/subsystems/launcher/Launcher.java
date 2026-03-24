@@ -136,8 +136,9 @@ public class Launcher implements Subsystem {
 
     private double calculateLauncherSpeed(double distance) {
         if (operatorMode) return targetLauncherVelocity;
+        
 
-        return Math.min(373.60706 * distance + 688.26387, 4000);
+        return Math.min(1022.0*Math.exp(0.184*distance), 4000);
     }
 
     private double calculateHoodAngle(double distance) {
@@ -184,6 +185,7 @@ public class Launcher implements Subsystem {
                 }
                 preAccel.setSpeed(1);
                 setHoodRotation(newHoodAngle);
+                drive.setToLaunch();
                 break;
             case IDLE:
                 launcherMiddle.setSpeed(0);
@@ -216,8 +218,10 @@ public class Launcher implements Subsystem {
             case AUTO:
                 if (launcherMiddle.getVelocity() >= newLauncherSpeed) {
                     feed.setSpeed(1);
+                    intake.intakeFeed();
                 } else if (launcherMiddle.getVelocity() < newLauncherSpeed - 100 || newLauncherSpeed == 0) {
                     feed.setSpeed(0);
+                    intake.intakeDisable();
                 }
                 break;
         }
