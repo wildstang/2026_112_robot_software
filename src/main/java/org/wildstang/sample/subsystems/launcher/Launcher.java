@@ -339,11 +339,7 @@ public class Launcher implements Subsystem {
     }
     
     public boolean isRunning() {
-        if(launcherState.equals(LauncherState.FORWARD)) {
-            return true;
-        } else {
-            return false;
-        }
+        return launcherState == LauncherState.FORWARD;
     }
 
     @Override
