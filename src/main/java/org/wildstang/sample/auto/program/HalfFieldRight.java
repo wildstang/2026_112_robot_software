@@ -3,6 +3,7 @@ package org.wildstang.sample.auto.program;
 import org.wildstang.framework.auto.AutoProgram;
 import org.wildstang.framework.auto.steps.AutoParallelStepGroup;
 import org.wildstang.framework.auto.steps.SwervePathFollowerStep;
+import org.wildstang.framework.auto.steps.control.AutoStepDelay;
 import org.wildstang.framework.auto.steps.control.AutoStepStopAutonomous;
 import org.wildstang.framework.core.Core;
 import org.wildstang.sample.auto.steps.SetGyroStep;
@@ -25,25 +26,21 @@ public class HalfFieldRight extends AutoProgram {
 
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
 
-        addStep(new SetGyroStep(Math.PI / 2));
-
-        AutoParallelStepGroup group1 = new AutoParallelStepGroup();
-        group1.addStep(new SwervePathFollowerStep("OverRightBump5", swerve));
-        addStep(group1); 
+        addStep(new SwervePathFollowerStep("OverRightBump5", swerve, true));
 
         AutoParallelStepGroup group2 = new AutoParallelStepGroup();
         group2.addStep(new SwervePathFollowerStep("RightHalfSwipe", swerve));
         group2.addStep(new SetIntakeStep(true));
         addStep(group2);
 
+        addStep(new AutoStepDelay(500));
+
         AutoParallelStepGroup group5 = new AutoParallelStepGroup();
         group5.addStep(new SetIntakeStep(false));
         group5.addStep(new SwervePathFollowerStep("AcrossRightBump5", swerve));
         addStep(group5); 
 
-        AutoParallelStepGroup group6 = new AutoParallelStepGroup();
-        group6.addStep(new SwervePathFollowerStep("ToShootingSpot5", swerve));
-        addStep(group6); 
+        addStep(new SwervePathFollowerStep("ToShootingSpot5", swerve));
         addStep(new SetLauncherStep());
 
         AutoParallelStepGroup group7 = new AutoParallelStepGroup();

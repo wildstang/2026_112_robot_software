@@ -69,7 +69,7 @@ public class SwervePathFollowerStep extends AutoStep {
     public SwervePathFollowerStep(String pathData, SwerveDriveTemplate drive, Boolean isFirstPath) {
         this(pathData, drive);
         if (isFirstPath) {
-            m_drive.setGyro(MathUtil.angleModulus(pathtraj.get().getInitialPose(!isBlue).get().getRotation().getRadians()));
+            // m_drive.setGyro(MathUtil.angleModulus(pathtraj.get().getInitialPose(!isBlue).get().getRotation().getRadians()));
             loc.setCurrentPose(pathtraj.get().getInitialPose(!isBlue).get());
             trajPublisher.set(pathtraj.get().getPoses());
         }
