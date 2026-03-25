@@ -153,7 +153,11 @@ public class Intake implements Subsystem {
     }
 
     public void setIngestMode(boolean newValue) {
-        intakeState = IntakeState.INGEST;
+        if (newValue) {
+            intakeState = IntakeState.INGEST;
+        } else if (intakeState == IntakeState.INGEST) {
+            intakeState = IntakeState.DEPLOY;
+        }
     }
 
     public void rollersDisable() {

@@ -199,7 +199,7 @@ public class Launcher implements Subsystem {
                 setHoodRotation(0);
                 break;
         }
-
+        intake.setIngestMode(false);
         // Feed State 
         switch (feedState) {
             case FORWARD:
@@ -220,7 +220,6 @@ public class Launcher implements Subsystem {
                     intake.setIngestMode(true);
                 } else if (launcherMiddle.getVelocity() < newLauncherSpeed - 100 || newLauncherSpeed == 0) {
                     feed.setSpeed(0);
-                    intake.setIngestMode(false);
                 }
                 break;
         }
