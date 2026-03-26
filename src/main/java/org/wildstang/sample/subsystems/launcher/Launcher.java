@@ -56,16 +56,19 @@ public class Launcher implements Subsystem {
     private GenericEntry feedingModeAngleEntry;
     private GenericEntry feedingModeRpmEntry;
     private GenericEntry visionOverrideLauncherSpeedEntry;
+    private GenericEntry unJamForwardDurationEntry;
+    private GenericEntry unJamReverseDurationEntry;
 
     private boolean operatorMode = false;
     private boolean resetHood = false;
     private boolean feedMode = false;
-
     private boolean wasVisionOverride = false;
 
     private double feedingModeAngle = 30;
     private double feedingModeRpm = 3400;
     private double visionOverrideLauncherSpeed = 1850;
+    private double unJamForwardDuration = 2;
+    private double unJamReverseDuration = .25;
 
     private final Timer unJamTimer = new Timer();
 
@@ -119,6 +122,8 @@ public class Launcher implements Subsystem {
         feedingModeAngleEntry = tab.add("Feeding Mode Angle", feedingModeAngle).getEntry();
         feedingModeRpmEntry = tab.add("Feeding Mode RPM", feedingModeRpm).getEntry();
         visionOverrideLauncherSpeedEntry = tab.add("Vision Override Launcher Speed", visionOverrideLauncherSpeed).getEntry();
+        unJamForwardDurationEntry = tab.add("Unjam Forward Duration", unJamForwardDuration).getEntry();
+        unJamReverseDurationEntry = tab.add("Unjam Reverse Duration", unJamReverseDuration).getEntry();
 
     }
 
@@ -225,16 +230,14 @@ public class Launcher implements Subsystem {
                 //feed.setSpeed()
                 break;
             case AUTO:
-                if (launcherMiddle.getVelocity() >= newLauncherSpeed) {
+                if (unJamTimer.get() <= unJamForwardDuration) {
+                    if (launcherMiddle.getVelocity() >= newLauncherSpeed) {
                     feed.setSpeed(1);
                     intake.setIngestMode(true);
                 } else if (launcherMiddle.getVelocity() < newLauncherSpeed - 100 || newLauncherSpeed == 0) {
                     feed.setSpeed(0);
-                }
-
-                if (unJamTimer.get() <= 2) {
-                    //noop, don't overwrite speed
-                } else if (unJamTimer.get() <= 2.25){
+                    }
+                } else if (unJamTimer.get() <= (unJamForwardDuration + unJamReverseDuration)){
                     feed.setSpeed(-1);
                 } else {
                     unJamTimer.stop();
@@ -268,6 +271,8 @@ public class Launcher implements Subsystem {
         feedingModeRpm = feedingModeRpmEntry.getDouble(feedingModeRpm);
         feedingModeAngle = feedingModeAngleEntry.getDouble(feedingModeAngle);
         visionOverrideLauncherSpeed = visionOverrideLauncherSpeedEntry.getDouble(visionOverrideLauncherSpeed);
+        unJamForwardDuration = unJamForwardDurationEntry.getDouble(unJamForwardDuration);
+        unJamReverseDuration = unJamReverseDurationEntry.getDouble(unJamReverseDuration);
 
         wasVisionOverride = isVisionOverride;
     }
