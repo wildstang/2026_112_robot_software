@@ -9,7 +9,6 @@ import org.wildstang.sample.robot.WsInputs;
 import org.wildstang.sample.robot.WsOutputs;
 
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -20,7 +19,6 @@ public class Intake implements Subsystem {
     private WsSpark intakeRoller;
     private WsJoystickButton btnA;
     private WsJoystickButton btnX;
-    private final Timer intakeRetractTimer = new Timer();
 
     private double targetRollerForwardVelocity = 4000;
     private GenericEntry targetRollerForwardVelocityEntry;
@@ -56,9 +54,6 @@ public class Intake implements Subsystem {
         btnA.addInputListener(this);
         btnX = (WsJoystickButton) WsInputs.DRIVER_FACE_LEFT.get();
         btnX.addInputListener(this);
-
-        intakeRetractTimer.stop();
-        intakeRetractTimer.reset();
 
         ShuffleboardTab tab = Shuffleboard.getTab("Intake");
 
@@ -124,7 +119,6 @@ public class Intake implements Subsystem {
             if (btnX.getValue()) {
                 if (intakeState == IntakeState.DEPLOY) {
                     intakeState = IntakeState.RETRACT;
-                    intakeRetractTimer.restart();
                 } else {
                     intakeState = IntakeState.DEPLOY;
                 }
@@ -149,7 +143,6 @@ public class Intake implements Subsystem {
 
     public void retractIntake() {
         intakeState = IntakeState.RETRACT;
-        intakeRetractTimer.restart();
     }
 
     public void setIngestMode(boolean newValue) {
