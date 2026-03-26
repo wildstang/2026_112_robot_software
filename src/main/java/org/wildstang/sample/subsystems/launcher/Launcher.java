@@ -68,7 +68,7 @@ public class Launcher implements Subsystem {
     private double feedingModeRpm = 3400;
     private double visionOverrideLauncherSpeed = 1850;
     private double unJamForwardDuration = 2;
-    private double unJamReverseDuration = .25;
+    private double unJamReverseDuration = 0;
 
     private final Timer unJamTimer = new Timer();
 
@@ -146,7 +146,7 @@ public class Launcher implements Subsystem {
         if (operatorMode) return targetLauncherVelocity;
         
 
-        return Math.min(1022.0*Math.exp(0.184*distance), 4000);
+        return Math.min(384.24323 * distance + 647.1549, 4000);
     }
 
     private double calculateHoodAngle(double distance) {
