@@ -20,6 +20,7 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -66,6 +67,8 @@ public class Launcher implements Subsystem {
     private double feedingModeRpm = 3400;
     private double visionOverrideLauncherSpeed = 1850;
 
+    private final Timer unJamTimer = new Timer();
+
     
     private enum LauncherState {
         FORWARD,
@@ -84,7 +87,7 @@ public class Launcher implements Subsystem {
     
     private LauncherState launcherState = LauncherState.IDLE;
     private FeedState feedState = FeedState.IDLE;
-    
+
     @Override
     public void init() {
         launcherMiddle = (WsSpark) WsOutputs.LAUNCHER_MIDDLE.get();
@@ -199,8 +202,15 @@ public class Launcher implements Subsystem {
                 setHoodRotation(0);
                 break;
         }
+        if (feedState == FeedState.AUTO) {
+            if (!unJamTimer.isRunning()) unJamTimer.restart();
+        } else {
+            unJamTimer.stop();
+            unJamTimer.reset();
+        }
+
         intake.setIngestMode(false);
-        // Feed State 
+        // Feed State
         switch (feedState) {
             case FORWARD:
                 feed.setSpeed(1);
@@ -220,6 +230,15 @@ public class Launcher implements Subsystem {
                     intake.setIngestMode(true);
                 } else if (launcherMiddle.getVelocity() < newLauncherSpeed - 100 || newLauncherSpeed == 0) {
                     feed.setSpeed(0);
+                }
+
+                if (unJamTimer.get() <= 2) {
+                    //noop, don't overwrite speed
+                } else if (unJamTimer.get() <= 2.25){
+                    feed.setSpeed(-1);
+                } else {
+                    unJamTimer.stop();
+                    unJamTimer.reset();
                 }
                 break;
         }
