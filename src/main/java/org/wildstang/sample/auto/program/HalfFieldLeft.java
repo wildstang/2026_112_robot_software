@@ -26,15 +26,13 @@ public class HalfFieldLeft extends AutoProgram {
 
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
 
-        addStep(new SetGyroStep(4.71239 + Math.PI / 12));
       
-        AutoParallelStepGroup group0 = new AutoParallelStepGroup();
-        group0.addStep(new SetLauncherStep());
-        addStep(group0);
+      //only if we  want to shoot preload
+        // AutoParallelStepGroup group0 = new AutoParallelStepGroup();
+        // group0.addStep(new SetLauncherStep());
+        // addStep(group0);
 
-        AutoParallelStepGroup group1 = new AutoParallelStepGroup();
-        group1.addStep(new SwervePathFollowerStep("OverLeftBump2", swerve));
-        addStep(group1);
+        addStep(new SwervePathFollowerStep("OverLeftBump2", swerve, true));
 
         AutoParallelStepGroup group2 = new AutoParallelStepGroup();
         group2.addStep(new SwervePathFollowerStep("ToMidBalls2", swerve));
