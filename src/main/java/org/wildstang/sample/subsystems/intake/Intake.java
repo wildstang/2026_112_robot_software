@@ -43,7 +43,6 @@ public class Intake implements Subsystem {
     public void init() {
         intakeDeploy = (WsTalon) WsOutputs.INTAKE_DEPLOY.get();
         intakeDeploy.setCurrentLimit(40,40);
-        // intakeDeploy.resetEncoder();
         intakeDeploy.initClosedLoop(IntakeConstants.DEPLOY_P, IntakeConstants.DEPLOY_I, IntakeConstants.DEPLOY_D, 0);   // Slot 0
         intakeDeploy.initClosedLoop(IntakeConstants.RETRACT_P, IntakeConstants.RETRACT_I, IntakeConstants.RETRACT_D, 1);  // Slot 1
         intakeDeploy.initClosedLoop(IntakeConstants.INGEST_P, IntakeConstants.INGEST_I, IntakeConstants.INGEST_D, 2); // Slot 2
@@ -63,23 +62,14 @@ public class Intake implements Subsystem {
     @Override
     public void update() {
 
-        // set rollerState
-        if (rollerState == RollerState.HALF_FORWARD) {
-            // don't change state if in feed mode
-        } else if (intakeState == IntakeState.DEPLOY) { 
-            // Roll rollers while deployed, unless overridden
-            if (rollerState != RollerState.REVERSE) rollerState = RollerState.FORWARD;
-        } else if (intakeState == IntakeState.RETRACT) {
-            // Don't run rollers when retracted
-            if (rollerState != RollerState.REVERSE) rollerState = RollerState.OFF;
-        }
-
         switch (intakeState) {
             case DEPLOY:
                 intakeDeploy.setPosition(IntakeConstants.DEPLOY_ROTATIONS, 0);
+                if (rollerState != RollerState.REVERSE) rollerState = RollerState.FORWARD;
                 break;
             case RETRACT:
                 // intakeDeploy.setPosition(IntakeConstants.RETRACT_ROTATIONS, 1);
+                if (rollerState != RollerState.REVERSE) rollerState = RollerState.OFF;
                 break;
             case INGEST:
                 // intakeDeploy.setPosition(IntakeConstants.RETRACT_ROTATIONS, 2);
