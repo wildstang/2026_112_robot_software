@@ -5,18 +5,11 @@ import org.wildstang.framework.auto.steps.SwervePathFollowerStep;
 import org.wildstang.framework.auto.steps.control.AutoStepDelay;
 import org.wildstang.framework.auto.steps.control.AutoStepStopAutonomous;
 import org.wildstang.framework.core.Core;
-import org.wildstang.sample.auto.steps.SetGyroStep;
 import org.wildstang.sample.auto.steps.SetLauncherStep;
 import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 
-/**
- * A default AutoProgram that does nothing an never completes.
- * This is used in AutoManager as a final program (program 0) which
- * does nothing but keeps a program running when all programs complete.
- * @author coder65535
- */
 public class ShootMid extends AutoProgram {
     /**
      * Defines an AutoProgram's steps, executed in order added.
@@ -28,8 +21,6 @@ public class ShootMid extends AutoProgram {
 
 
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
-
-        addStep(new SetGyroStep(0.0));
 
         addStep(new SwervePathFollowerStep("shootMid", swerve));
         

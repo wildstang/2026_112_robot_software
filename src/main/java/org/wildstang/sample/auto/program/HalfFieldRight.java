@@ -6,7 +6,6 @@ import org.wildstang.framework.auto.steps.SwervePathFollowerStep;
 import org.wildstang.framework.auto.steps.control.AutoStepDelay;
 import org.wildstang.framework.auto.steps.control.AutoStepStopAutonomous;
 import org.wildstang.framework.core.Core;
-import org.wildstang.sample.auto.steps.SetGyroStep;
 import org.wildstang.sample.auto.steps.SetIntakeStep;
 import org.wildstang.sample.auto.steps.SetLauncherStep;
 import org.wildstang.sample.robot.WsSubsystems;
@@ -41,6 +40,7 @@ public class HalfFieldRight extends AutoProgram {
         addStep(group5); 
 
         addStep(new SwervePathFollowerStep("ToShootingSpot5", swerve));
+        addStep(new AutoStepDelay(800));
         addStep(new SetLauncherStep());
 
         addStep(new SwervePathFollowerStep("BackToBegRight", swerve));
