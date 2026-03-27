@@ -180,7 +180,8 @@ public class Launcher implements Subsystem {
             launcherState = LauncherState.IDLE;
             feedState = FeedState.IDLE;
         }
-
+        
+        intake.setIngestMode(false);
         // Launcher state
         switch (launcherState) {
             case FORWARD:
@@ -192,6 +193,8 @@ public class Launcher implements Subsystem {
                 preAccel.setSpeed(1);
                 setHoodRotation(newHoodAngle);
                 drive.setToLaunch();
+
+                intake.setIngestMode(true);
                 break;
             case IDLE:
                 launcherMiddle.setSpeed(0);
@@ -214,7 +217,6 @@ public class Launcher implements Subsystem {
             unJamTimer.reset();
         }
 
-        intake.setIngestMode(false);
         // Feed State
         switch (feedState) {
             case FORWARD:
@@ -233,7 +235,6 @@ public class Launcher implements Subsystem {
                 if (unJamTimer.get() <= unJamForwardDuration) {
                     if (launcherMiddle.getVelocity() >= newLauncherSpeed) {
                     feed.setSpeed(1);
-                    intake.setIngestMode(true);
                 } else if (launcherMiddle.getVelocity() < newLauncherSpeed - 100 || newLauncherSpeed == 0) {
                     feed.setSpeed(0);
                     }
