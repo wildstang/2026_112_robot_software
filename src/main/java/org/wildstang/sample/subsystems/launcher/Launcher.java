@@ -176,6 +176,7 @@ public class Launcher implements Subsystem {
         if (isVisionOverride) {
             launcherState = LauncherState.VISION_OVERRIDE;
             feedState = FeedState.AUTO;
+            newLauncherSpeed = visionOverrideLauncherSpeed;
         } else if (!isVisionOverride && wasVisionOverride) {
             launcherState = LauncherState.IDLE;
             feedState = FeedState.IDLE;
@@ -205,7 +206,7 @@ public class Launcher implements Subsystem {
                 preAccel.setSpeed(-1);
                 break;
             case VISION_OVERRIDE:
-                launcherMiddle.setVelocity(visionOverrideLauncherSpeed);
+                launcherMiddle.setVelocity(newLauncherSpeed);
                 preAccel.setSpeed(1);
                 setHoodRotation(0);
                 break;
@@ -258,6 +259,7 @@ public class Launcher implements Subsystem {
         SmartDashboard.putNumber("Target Hood Angle (Deg)", newHoodAngle);
 
         SmartDashboard.putBoolean("Is feeding", feedMode);
+        SmartDashboard.putBoolean("Is vision override mode", isVisionOverride);
         
         SmartDashboard.putNumber("Feed Read RPM", feed.getVelocity());
         SmartDashboard.putNumber("Pre-Accel Read RPM", preAccel.getVelocity());
