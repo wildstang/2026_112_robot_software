@@ -26,7 +26,7 @@ public class SetLauncherStep extends AutoStep{
     }
     @Override
     public void update() {
-        if (timer.get() >= 4.0){
+        if (timer.get() >= 8.0){
             launcher.stopLaunch();
             swerve.resetState();
             setFinished();
