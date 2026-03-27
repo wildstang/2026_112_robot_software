@@ -2,6 +2,7 @@ package org.wildstang.sample.subsystems.intake;
 
 import org.wildstang.framework.io.inputs.Input;
 import org.wildstang.framework.subsystems.Subsystem;
+import org.wildstang.hardware.roborio.inputs.WsDPadButton;
 import org.wildstang.hardware.roborio.inputs.WsJoystickButton;
 import org.wildstang.hardware.roborio.outputs.WsSpark;
 import org.wildstang.hardware.roborio.outputs.WsTalon;
@@ -19,6 +20,7 @@ public class Intake implements Subsystem {
     private WsSpark intakeRoller;
     private WsJoystickButton btnA;
     private WsJoystickButton btnX;
+    private WsDPadButton dPadUp;
 
     private double targetRollerForwardVelocity = 4000;
     private GenericEntry targetRollerForwardVelocityEntry;
@@ -53,6 +55,8 @@ public class Intake implements Subsystem {
         btnA.addInputListener(this);
         btnX = (WsJoystickButton) WsInputs.DRIVER_FACE_LEFT.get();
         btnX.addInputListener(this);
+        dPadUp = (WsDPadButton) WsInputs.DRIVER_DPAD_UP.get();
+        dPadUp.addInputListener(this);
 
         ShuffleboardTab tab = Shuffleboard.getTab("Intake");
 
@@ -68,7 +72,7 @@ public class Intake implements Subsystem {
                 if (rollerState != RollerState.REVERSE) rollerState = RollerState.FORWARD;
                 break;
             case RETRACT:
-                // intakeDeploy.setPosition(IntakeConstants.RETRACT_ROTATIONS, 1);
+                intakeDeploy.setPosition(IntakeConstants.RETRACT_ROTATIONS, 1);
                 if (rollerState != RollerState.REVERSE) rollerState = RollerState.OFF;
                 break;
             case INGEST:
@@ -107,14 +111,14 @@ public class Intake implements Subsystem {
     public void inputUpdate(Input source) {
         if (source == btnX) {
             if (btnX.getValue()) {
-                if (intakeState == IntakeState.DEPLOY) {
-                    intakeState = IntakeState.RETRACT;
-                } else {
-                    intakeState = IntakeState.DEPLOY;
-                }
+                // if (intakeState == IntakeState.DEPLOY) {
+                //     intakeState = IntakeState.RETRACT;
+                // } else {
+                //     intakeState = IntakeState.DEPLOY;
+                // }
+                intakeState = IntakeState.DEPLOY; 
             }
-        }
-        if (source == btnA) {
+        } else if (source == btnA) {
             if (btnA.getValue()) {
                 rollerState = RollerState.REVERSE;
             } else {
@@ -123,6 +127,10 @@ public class Intake implements Subsystem {
                 } else {
                     rollerState = RollerState.OFF;
                 }
+            }
+        } else if (source == dPadUp) {
+            if (dPadUp.getValue()) {
+                intakeState = IntakeState.RETRACT;
             }
         }
     }
