@@ -69,15 +69,12 @@ public class Intake implements Subsystem {
         switch (intakeState) {
             case DEPLOY:
                 intakeDeploy.setPosition(IntakeConstants.DEPLOY_ROTATIONS, 0);
-                if (rollerState != RollerState.REVERSE) rollerState = RollerState.FORWARD;
                 break;
             case RETRACT:
                 intakeDeploy.setPosition(IntakeConstants.RETRACT_ROTATIONS, 1);
-                if (rollerState != RollerState.REVERSE) rollerState = RollerState.OFF;
                 break;
             case INGEST:
                 // intakeDeploy.setPosition(IntakeConstants.RETRACT_ROTATIONS, 2);
-                rollerState = RollerState.HALF_FORWARD;
                 break;
         }
 
@@ -111,48 +108,75 @@ public class Intake implements Subsystem {
     public void inputUpdate(Input source) {
         if (source == btnX) {
             if (btnX.getValue()) {
-                // if (intakeState == IntakeState.DEPLOY) {
-                //     intakeState = IntakeState.RETRACT;
-                // } else {
-                //     intakeState = IntakeState.DEPLOY;
-                // }
-                intakeState = IntakeState.DEPLOY; 
+                if (intakeState == IntakeState.DEPLOY) {
+                    if (rollerState == RollerState.FORWARD) {
+                        setRollerState(RollerState.OFF);
+                    } else {
+                        setRollerState(RollerState.FORWARD);
+                    }
+                } else {
+                    setIntakeState(IntakeState.DEPLOY);
+                    
+                }
             }
         } else if (source == btnA) {
             if (btnA.getValue()) {
-                rollerState = RollerState.REVERSE;
+                setRollerState(RollerState.REVERSE);
             } else {
                 if (intakeState == IntakeState.DEPLOY) {
-                    rollerState = RollerState.FORWARD;
+                    setRollerState(RollerState.FORWARD);
                 } else {
-                    rollerState = RollerState.OFF;
+                    setRollerState(RollerState.OFF);
                 }
             }
         } else if (source == dPadUp) {
             if (dPadUp.getValue()) {
-                intakeState = IntakeState.RETRACT;
+                setIntakeState(IntakeState.RETRACT);
             }
         }
     }
 
+    public void setIntakeState(IntakeState newIntakeState) {
+        switch (newIntakeState) {
+            case DEPLOY:
+                intakeState = IntakeState.DEPLOY;
+                rollerState = RollerState.FORWARD;
+                break;
+            case RETRACT:
+                intakeState = IntakeState.RETRACT;
+                rollerState = RollerState.OFF;
+                break;
+            case INGEST:
+                intakeState = IntakeState.INGEST;
+                rollerState = RollerState.HALF_FORWARD;
+                break;
+        }
+    }
+
+    public void setRollerState(RollerState newRollerState) {
+        rollerState = newRollerState;
+    }
+
     public void deployIntake() {
-        intakeState = IntakeState.DEPLOY;
+        setIntakeState(IntakeState.DEPLOY);
+        setRollerState(RollerState.FORWARD);
     }
 
     public void retractIntake() {
-        intakeState = IntakeState.RETRACT;
+        setIntakeState(IntakeState.RETRACT);
     }
 
     public void setIngestMode(boolean newValue) {
         if (newValue) {
-            intakeState = IntakeState.INGEST;
+            setIntakeState(IntakeState.INGEST);
         } else if (intakeState == IntakeState.INGEST) {
-            intakeState = IntakeState.DEPLOY;
+            setIntakeState(IntakeState.DEPLOY);
+            setRollerState(RollerState.FORWARD);
         }
     }
 
     public void rollersDisable() {
-        rollerState = RollerState.OFF;
+        setRollerState(RollerState.OFF);
     }
 
     public boolean isDeployed() {
