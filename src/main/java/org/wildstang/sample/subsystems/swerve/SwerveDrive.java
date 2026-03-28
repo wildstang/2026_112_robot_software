@@ -228,7 +228,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
                 } else {
                     rOutput = rInput;
                 }
-                if (Math.abs(loc.getTargetAngle()) <= crossWhileLaunchingDeadband) shouldCross = true;
+                if (Math.abs(loc.getTargetAngle() - gyroAngle) <= crossWhileLaunchingDeadband) shouldCross = true;
                 break;
             case CROSS:
                 shouldCross = true;
