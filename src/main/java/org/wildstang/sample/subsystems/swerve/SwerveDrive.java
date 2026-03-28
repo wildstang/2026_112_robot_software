@@ -22,9 +22,12 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -64,20 +67,18 @@ public class SwerveDrive extends SwerveDriveTemplate {
 
     public SwerveDriveKinematics swerveKinematics;
 
-    @Override
-    public void setGyro(double degrees) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
+    private GenericEntry crossWhileLaunchingDeadbandEntry;
+    private double crossWhileLaunchingDeadband = 0.4; // radians from hub
+    
     public enum DriveState {LAUNCH, TELEOP, AUTO, CROSS, BUMP, SNAKE, FEED};
     public DriveState driveState;
     private Pose2d curPose;
     private boolean shouldCross = false;
-
+    
     private static final double DEG_TO_RAD = Math.PI / 180.0;
     private static final double RAD_TO_DEG = 180.0 / Math.PI;
     private boolean visionOverride = false;
-
+    
     public final Field2d m_field = new Field2d();
     private SwerveModuleState[] moduleStates;
     StructArrayPublisher<SwerveModuleState> moduleStatePublisher;
@@ -96,8 +97,13 @@ public class SwerveDrive extends SwerveDriveTemplate {
         chassisSpeedPublisher = NetworkTableInstance.getDefault().getStructTopic("Chassis Speeds", ChassisSpeeds.struct).publish();
         targetSpeedPublisher = NetworkTableInstance.getDefault().getStructTopic("Target Speeds", ChassisSpeeds.struct).publish();
         targetPosePublisher = NetworkTableInstance.getDefault().getStructTopic("Target Pose", Pose2d.struct).publish();
-    }
 
+        ShuffleboardTab tab = Shuffleboard.getTab("Launcher");
+
+        crossWhileLaunchingDeadbandEntry = tab.add("Cross while launching deadband", crossWhileLaunchingDeadband).getEntry();
+         
+    }
+    
     public void initInputs() {
         leftStickX = (AnalogInput) Core.getInputManager().getInput(WsInputs.DRIVER_LEFT_JOYSTICK_VERTICAL);
         leftStickX.addInputListener(this);
@@ -115,7 +121,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         rightBumper.addInputListener(this);
         dpadDown = (DigitalInput) Core.getInputManager().getInput(WsInputs.DRIVER_DPAD_DOWN);
         dpadDown.addInputListener(this);
-
+        
     }
 
     public void initOutputs() {
@@ -126,9 +132,9 @@ public class SwerveDrive extends SwerveDriveTemplate {
             new SwerveModule((WsSpark) Core.getOutputManager().getOutput(WsOutputs.DRIVE2), 
                 (WsSpark) Core.getOutputManager().getOutput(WsOutputs.ANGLE2), DriveConstants.FRONT_RIGHT_OFFSET),
             new SwerveModule((WsSpark) Core.getOutputManager().getOutput(WsOutputs.DRIVE3), 
-                (WsSpark) Core.getOutputManager().getOutput(WsOutputs.ANGLE3), DriveConstants.REAR_LEFT_OFFSET),
+            (WsSpark) Core.getOutputManager().getOutput(WsOutputs.ANGLE3), DriveConstants.REAR_LEFT_OFFSET),
             new SwerveModule((WsSpark) Core.getOutputManager().getOutput(WsOutputs.DRIVE4), 
-                (WsSpark) Core.getOutputManager().getOutput(WsOutputs.ANGLE4), DriveConstants.REAR_RIGHT_OFFSET)
+            (WsSpark) Core.getOutputManager().getOutput(WsOutputs.ANGLE4), DriveConstants.REAR_RIGHT_OFFSET)
         };
 
         double halfWidth = DriveConstants.TRACK_WIDTH / 2;
@@ -141,7 +147,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         );
         swerveSignal = new SwerveSignal(new double[]{0.0, 0.0, 0.0, 0.0}, new double[]{0.0, 0.0, 0.0, 0.0});
     }
-
+    
     @Override
     public void initSubsystems(){
         loc = (Localization) Core.getSubsystemManager().getSubsystem(WsSubsystems.LOCALIZATION);
@@ -157,6 +163,11 @@ public class SwerveDrive extends SwerveDriveTemplate {
     }
 
     @Override
+    public void setGyro(double degrees) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public void inputUpdate(Input source) {
         if (source == dpadDown && dpadDown.getValue()) visionOverride = !visionOverride;
         // reset gyro when facing away from alliance station
@@ -165,7 +176,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
         if (source == leftBumper && leftBumper.getValue()) toggleDriveState(DriveState.CROSS);
         if (source == rightBumper && rightBumper.getValue()) toggleDriveState(DriveState.SNAKE);
         if (source == rightStickButton && rightStickButton.getValue()) toggleDriveState(DriveState.BUMP);
-
+        
         if (driveState == DriveState.BUMP && Math.abs(rightStickX.getValue()) > 0.1) driveState = DriveState.TELEOP;
 
         // get x and y speeds
@@ -214,10 +225,10 @@ public class SwerveDrive extends SwerveDriveTemplate {
                 yOutput = yInput;
                 if (!visionOverride) {
                     rOutput = swerveHelper.getRotControl(MathUtil.angleModulus(loc.getTargetAngle()), gyroAngle);
-                }
-                else {
+                } else {
                     rOutput = rInput;
                 }
+                if (Math.abs(loc.getTargetAngle()) <= crossWhileLaunchingDeadband) shouldCross = true;
                 break;
             case CROSS:
                 shouldCross = true;
@@ -280,6 +291,8 @@ public class SwerveDrive extends SwerveDriveTemplate {
         targetSpeedPublisher.set(targetSpeed);
         targetPosePublisher.set(targetPose);
         m_field.setRobotPose(curPose);  // TODO: check if this is needed to post to elastic or if we can use the Localization publisher
+
+        crossWhileLaunchingDeadband = crossWhileLaunchingDeadbandEntry.getDouble(crossWhileLaunchingDeadband);
     }
 
     /** sets the drive to teleop/cross, and sets drive motors to coast */
