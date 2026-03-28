@@ -68,7 +68,7 @@ public class SwerveDrive extends SwerveDriveTemplate {
     public SwerveDriveKinematics swerveKinematics;
 
     private GenericEntry crossWhileLaunchingDeadbandEntry;
-    private double crossWhileLaunchingDeadband = 0.4; // radians from hub
+    private double crossWhileLaunchingDeadband = 0.04; // radians from hub
     
     public enum DriveState {LAUNCH, TELEOP, AUTO, CROSS, BUMP, SNAKE, FEED};
     public DriveState driveState;
