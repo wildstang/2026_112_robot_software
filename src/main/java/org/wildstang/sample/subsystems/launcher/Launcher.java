@@ -234,7 +234,7 @@ public class Launcher implements Subsystem {
                 break;
             case AUTO:
                 if (unJamTimer.get() <= unJamForwardDuration) {
-                    if (launcherMiddle.getVelocity() >= newLauncherSpeed - 50) {
+                    if (launcherMiddle.getVelocity() >= newLauncherSpeed) {
                     feed.setSpeed(1);
                 } else if (launcherMiddle.getVelocity() < newLauncherSpeed - 150 || newLauncherSpeed == 0) {
                     feed.setSpeed(0);

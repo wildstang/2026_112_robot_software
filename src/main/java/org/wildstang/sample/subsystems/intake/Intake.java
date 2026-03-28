@@ -86,7 +86,7 @@ public class Intake implements Subsystem {
                 intakeRoller.setSpeed(0);
                 break;
             case REVERSE:
-                intakeRoller.setSpeed(-1);
+                intakeRoller.setVelocity(-targetRollerForwardVelocity);
                 break;
             case HALF_FORWARD:
                 intakeRoller.setVelocity(targetRollerForwardVelocity / 2);
