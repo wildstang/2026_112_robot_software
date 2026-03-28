@@ -8,6 +8,8 @@ import org.wildstang.sample.auto.program.HalfFieldLeft;
 import org.wildstang.sample.auto.program.HalfFieldRight;
 import org.wildstang.sample.auto.program.Trench;
 import org.wildstang.sample.auto.program.ShootMid;
+import org.wildstang.sample.auto.program.SpoilerLeft;
+import org.wildstang.sample.auto.program.SpoilerRight;
 
 
 /**
@@ -24,7 +26,9 @@ public enum WsAutoPrograms implements AutoPrograms {
     HALF_FIELD_RIGHT("HalfFieldRight", HalfFieldRight.class),
     HALF_FIELD_LEFT("HalfFieldLeft", HalfFieldLeft.class),
     TRENCH("Trench", Trench.class),
-    SHOOT_MID("ShootMid", ShootMid.class)
+    SHOOT_MID("ShootMid", ShootMid.class),
+    SPOILER_RIGHT("SpoilerRight", SpoilerRight.class),
+    SPOILER_LEFT("SpoilerLeft", SpoilerLeft.class)
     ;
 
     /**

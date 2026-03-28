@@ -13,7 +13,7 @@ import org.wildstang.sample.robot.WsSubsystems;
 import org.wildstang.sample.subsystems.swerve.SwerveDrive;
 
 
-public class SpoilerRight extends AutoProgram {
+public class SpoilerLeft extends AutoProgram {
     
     /**
      * Defines an AutoProgram's steps, executed in order added.
@@ -27,32 +27,32 @@ public class SpoilerRight extends AutoProgram {
         SwerveDrive swerve = (SwerveDrive) Core.getSubsystemManager().getSubsystem(WsSubsystems.SWERVE_DRIVE);
 
         AutoParallelStepGroup group1 = new AutoParallelStepGroup();
-        group1.addStep(new SwervePathFollowerStep("SpoilerRight1", swerve));
+        group1.addStep(new SwervePathFollowerStep("SpoilerLeft1", swerve));
         AutoSerialStepGroup group1sub1 = new AutoSerialStepGroup();
         group1sub1.addStep(new AutoStepDelay(1800));
         group1sub1.addStep(new SetIntakeStep(true));
         group1.addStep(group1sub1);
         addStep(group1);
 
-        addStep(new SwervePathFollowerStep("SpoilerRight2", swerve));
+        addStep(new SwervePathFollowerStep("SpoilerLeft2", swerve));
 
         // addStep(new AutoStepDelay(500));
 
         // AutoParallelStepGroup group2 = new AutoParallelStepGroup();
         // group2.addStep(new SetIntakeStep(false));
-        // group2.addStep(new SwervePathFollowerStep("AcrossRightBump5", swerve));
+        // group2.addStep(new SwervePathFollowerStep("AcrossLeftBump5", swerve));
         // addStep(group2); 
 
         // addStep(new SwervePathFollowerStep("ToShootingSpot5", swerve));
         // addStep(new AutoStepDelay(800));
         // addStep(new SetLauncherStep());
 
-        // addStep(new SwervePathFollowerStep("BackToBegRight", swerve));
+        // addStep(new SwervePathFollowerStep("BackToBegLeft", swerve));
 
-        // addStep(new SwervePathFollowerStep("OverRightBump5", swerve));
+        // addStep(new SwervePathFollowerStep("OverLeftBump5", swerve));
 
         // AutoParallelStepGroup group3 = new AutoParallelStepGroup();
-        // group3.addStep(new SwervePathFollowerStep("RightHalfSwipe", swerve));
+        // group3.addStep(new SwervePathFollowerStep("LeftHalfSwipe", swerve));
         // group3.addStep(new SetIntakeStep(true));
         // addStep(group3); 
 
@@ -67,6 +67,6 @@ public class SpoilerRight extends AutoProgram {
      */
     @Override
     public String toString() {
-        return "SpoilerRight";
+        return "SpoilerLeft";
     }
 }
